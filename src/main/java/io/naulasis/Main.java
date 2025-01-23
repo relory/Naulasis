@@ -1,9 +1,13 @@
 package io.naulasis;
 
+import imgui.ImDrawList;
 import imgui.ImGui;
+import imgui.ImVec2;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import io.naulasis.components.Checkbox;
+import io.naulasis.utils.colorConverter;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
@@ -41,18 +45,35 @@ public class Main {
         imGuiGl3.init("#version 130");
 
         float currentSize = 0;
+        float currentPosX = 0;
+        float currentPosY = 0;
 
+        float targetSize = 0;
+
+        float CursorPositionX = 0;
+        float CursorPositionY = 0;
+        Checkbox checkbox = new Checkbox();
         while(!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
             imGuiGlfw.newFrame();
             imGuiGl3.newFrame();
             ImGui.newFrame();
+
+
             ImGui.begin("hello world!");
+            ImGui.setWindowPos(currentPosX, currentPosY);
             ImGui.setWindowSize(currentSize, currentSize);
             /// Animation
+            checkbox.Draw();
             float delta = ImGui.getIO().getDeltaTime();
             currentSize = ImLerp(currentSize, 500f, delta);
-
+            CursorPositionX = ImLerp(CursorPositionX, ImGui.getCursorScreenPosX(), delta);
+            CursorPositionY = ImLerp(CursorPositionY, ImGui.getCursorScreenPosY(), delta);
+            ImDrawList drawlist = ImGui.getForegroundDrawList();
+            drawlist.addRect(new ImVec2(0, 0), new ImVec2(100, 100), colorConverter.colorToInt(1,1,1,1));
+            if(ImGui.isMouseHoveringRect(new ImVec2(0,0), new ImVec2(100,100)) && ImGui.isMouseClicked(0)){
+                System.out.println("clicked!");
+            }
             ImGui.end();
             ImGui.render();
             glClearColor(0.0f, 0.0f, 0.0f, 1f);
