@@ -1,35 +1,39 @@
 package io.naulasis;
 
-import lombok.Getter;
+import io.naulasis.model.Component;
+import io.naulasis.model.ComponentManager;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Naulasis {
+
     private static Naulasis instance;
 
-    private float scale;
-    @Getter
-    private static long Window;
+    // NOTE: Made this static because of JNI!
+    private static long window;
+
     public void Init(long window){
-        this.Window = window;
+        Naulasis.window = window;
+
         glfwSetCharCallback(window, (windowHandle, codepoint) -> {
-            for (io.naulasis.component component : componentsManager.getInstance().getComponents()) {
+            for (Component component : ComponentManager.getInstance().getComponents()) {
                 component.onKeyboardChar((char) codepoint);
             }
         });
+
         glfwSetKeyCallback(window, (windowHandle, key, scancode, action, mods) -> {
             if(action != GLFW_RELEASE) {
-                for (io.naulasis.component component : componentsManager.getInstance().getComponents()) {
+                for (Component component : ComponentManager.getInstance().getComponents()) {
                     component.onKeyboardInt(key);
                 }
             }
         });
     }
-    public static void PushScale(){
 
-    }
     public long getWindow(){
-        return this.Window;
+        return window;
     }
+
     public static Naulasis getInstance() {
         if (instance == null) {
             instance = new Naulasis();

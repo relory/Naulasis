@@ -1,6 +1,6 @@
 package io.naulasis.utils;
 
-public class colorConverter {
+public class ColorConverter {
 
     public static int colorToInt(double Red, double Green, double Blue, double opacity) {
         int alpha = (int) Math.round(opacity);

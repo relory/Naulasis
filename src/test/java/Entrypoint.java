@@ -1,15 +1,16 @@
-
 import imgui.*;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import io.naulasis.Naulasis;
-import io.naulasis.components.Checkbox;
-import io.naulasis.components.Slider;
-import io.naulasis.components.TextInput;
-import io.naulasis.utils.colorConverter;
+import io.naulasis.model.impl.Button;
+import io.naulasis.model.impl.CheckBox;
+import io.naulasis.model.impl.Slider;
+import io.naulasis.model.impl.TextInput;
+import io.naulasis.utils.ColorConverter;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+
 import static io.naulasis.utils.ImGuiInternal.ImLerp;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -56,9 +57,11 @@ public class Entrypoint {
 
         float CursorPositionX = 0;
         float CursorPositionY = 0;
-        Checkbox checkbox = new Checkbox();
+        CheckBox checkbox = new CheckBox();
         TextInput textInput = new TextInput();
         Slider slider = new Slider("hello", 1, 100, 5, 1);
+        Button button = new Button();
+
         ImFont font = ImGui.getIO().getFonts().addFontFromFileTTF(System.getProperty("user.home") + "/.salorid/Fonts/InterVariable.ttf", 20.0f);
         ImGuiIO io = ImGui.getIO();
         ImFontAtlas fontAtlas = io.getFonts();
@@ -75,15 +78,16 @@ public class Entrypoint {
             ImGui.setWindowPos(currentPosX, currentPosY);
             ImGui.setWindowSize(currentSize, currentSize);
             /// Animation
-            checkbox.Draw();
-            textInput.Draw();
-            slider.Draw();
+            checkbox.draw();
+            //textInput.draw();
+            slider.draw();
+            button.draw();
             float delta = ImGui.getIO().getDeltaTime();
             currentSize = ImLerp(currentSize, 800, delta);
             CursorPositionX = ImLerp(CursorPositionX, ImGui.getCursorScreenPosX(), delta);
             CursorPositionY = ImLerp(CursorPositionY, ImGui.getCursorScreenPosY(), delta);
             ImDrawList drawlist = ImGui.getForegroundDrawList();
-            drawlist.addRect(new ImVec2(0, 0), new ImVec2(100, 100), colorConverter.colorToInt(1,1,1,1));
+            drawlist.addRect(new ImVec2(0, 0), new ImVec2(100, 100), ColorConverter.colorToInt(1,1,1,1));
             if(ImGui.isMouseHoveringRect(new ImVec2(0,0), new ImVec2(100,100)) && ImGui.isMouseClicked(0)){
                 System.out.println("clicked!");
             }
