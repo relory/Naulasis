@@ -3,11 +3,11 @@ package io.naulasis.components;
 import imgui.ImDrawList;
 import imgui.ImGui;
 import imgui.ImVec2;
+import io.naulasis.component;
 import io.naulasis.utils.colorConverter;
-
 import static io.naulasis.utils.ImGuiInternal.ImLerp;
 
-public class Checkbox {
+public class Checkbox extends component {
     private boolean Enabled = false;
     float MiniRectRounding = 12;
     float MiniRectSize = 5;

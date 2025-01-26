@@ -68,7 +68,7 @@ public class ImGuiInternal {
         return x < 0 ? -x : x;
     }
 
-    public static float  ImSign(float x){
+    public static float ImSign(float x){
         return (x < 0.0f) ? -1.0f : (x > 0.0f) ? 1.0f : 0.0f;
     }
     public static double ImSign(double x){
