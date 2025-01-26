@@ -3,10 +3,7 @@ import imgui.flag.ImGuiWindowFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import io.naulasis.Naulasis;
-import io.naulasis.model.impl.Button;
-import io.naulasis.model.impl.CheckBox;
-import io.naulasis.model.impl.Slider;
-import io.naulasis.model.impl.TextInput;
+import io.naulasis.model.impl.*;
 import io.naulasis.utils.ColorConverter;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -61,6 +58,7 @@ public class Entrypoint {
         TextInput textInput = new TextInput();
         Slider slider = new Slider("hello", 1, 100, 5, 1);
         Button button = new Button();
+        Switch switcher = new Switch(false);
 
         ImFont font = ImGui.getIO().getFonts().addFontFromFileTTF(System.getProperty("user.home") + "/.salorid/Fonts/InterVariable.ttf", 20.0f);
         ImGuiIO io = ImGui.getIO();
@@ -79,9 +77,10 @@ public class Entrypoint {
             ImGui.setWindowSize(currentSize, currentSize);
             /// Animation
             checkbox.draw();
-            //textInput.draw();
+            textInput.draw();
             slider.draw();
-            button.draw();
+            switcher.draw();
+            //button.draw();
             float delta = ImGui.getIO().getDeltaTime();
             currentSize = ImLerp(currentSize, 800, delta);
             CursorPositionX = ImLerp(CursorPositionX, ImGui.getCursorScreenPosX(), delta);

@@ -4,103 +4,81 @@ import imgui.ImDrawList;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.flag.ImDrawFlags;
-import io.naulasis.Naulasis;
+import imgui.flag.ImGuiCond;
+import imgui.flag.ImGuiKey;
+import imgui.type.ImString;
 import io.naulasis.model.Component;
 import io.naulasis.utils.ColorConverter;
-import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-
-import static io.naulasis.utils.ImGuiInternal.ImLerp;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class TextInput extends Component {
 
-    private boolean selectAll = false, selected = false, active = false, fadeIn = false;
-    private float currentCursorX, currentCursorOpacity = 255;
-    private long lastKeyTypedTime = 0L;
-
-    private String text = "";
-    private ArrayList<Character> sample = new ArrayList<>();
+    private ImString value = new ImString("test");
+    private static boolean focused = false;
+    private int cursorPosition = 0;
 
     @Override
-    public void draw(){
+    public void draw() {
         ImDrawList drawList = ImGui.getWindowDrawList();
 
-        drawList.addRectFilled(new ImVec2(100,100), new ImVec2(225, 130), ColorConverter.colorToInt(25, 25, 25, 255), 6f, ImDrawFlags.RoundCornersAll);
-        drawList.addText(ImGui.getFont(), 20, new ImVec2(100, 100), ColorConverter.colorToInt(150, 150, 150, 255), text);
+        drawList.addRectFilled(new ImVec2(100, 100), new ImVec2(225, 130), ColorConverter.colorToInt(50, 50, 50, 255), 6f, ImDrawFlags.RoundCornersAll);
+        drawList.addText(ImGui.getFont(), 20, new ImVec2(137, 105), ColorConverter.colorToInt(150, 150, 150, 255), value.get());
+        drawList.addRect(new ImVec2(100, 100), new ImVec2(225, 130), ColorConverter.colorToInt(75, 75, 75, 255), 6f, ImDrawFlags.RoundCornersAll, 0.5f);
 
-        float targetCursorPosition = 100 + ImGui.getFont().calcTextSizeA(20, Float.MAX_VALUE, 0, text).x;
-        float delta = ImGui.getIO().getDeltaTime();
+        ImGui.setNextWindowPos(new ImVec2(100, 100), ImGuiCond.Always, new ImVec2(0.5f, 0.5f));
+        ImGui.setNextWindowSize(new ImVec2(125, 50), ImGuiCond.Always);
+        ImGui.setNextWindowFocus();
 
-        currentCursorX = ImLerp(currentCursorX, targetCursorPosition, delta * 10);
-        if(System.currentTimeMillis() - lastKeyTypedTime > 500){
-            if (fadeIn && currentCursorOpacity < 255) {
-                currentCursorOpacity += 1f;
-
-                if (currentCursorOpacity >= 255) {
-                    currentCursorOpacity = 255;
-                    fadeIn = false;
-                }
-            } else if (!fadeIn && currentCursorOpacity > 50) {
-                currentCursorOpacity -= 1f;
-
-                if (currentCursorOpacity <= 50) {
-                    currentCursorOpacity = 50;
-                    fadeIn = true;
-                }
+        // TODO -> fix this logic
+        if (ImGui.isMouseHoveringRect(new ImVec2(100, 100), new ImVec2(225, 130))) {
+            if (ImGui.isMouseClicked(0)) {
+                focused = true;
             }
-        }
-        else {
-            currentCursorOpacity = 255f;
-            fadeIn = false;
-
+        } else {
+            focused = false;
         }
 
-        drawList.addRectFilled(new ImVec2(currentCursorX + 1,100), new ImVec2(currentCursorX + 3, 120), ColorConverter.colorToInt(150, 150, 150, currentCursorOpacity), 12f, ImDrawFlags.RoundCornersAll);
-        selected = ImGui.isMouseHoveringRect(new ImVec2(100, 100), new ImVec2(255, 130)) && ImGui.isMouseClicked(0);
+        // TODO -> Fix this logic
+        if (focused) {
+            setKeyListener(new KeyListener() {
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    System.out.println("hello " + e.getKeyCode());
+                    if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                        if (cursorPosition > 0) {
+                            value.set(value.get().substring(0, value.get().length() - 1));
+                            cursorPosition--;
+                        }
+                    } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                        if (cursorPosition < value.get().length()) {
+                            value.set(value.get().substring(0, cursorPosition) + value.get().substring(cursorPosition + 1));
+                        }
+                    } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                        if (cursorPosition > 0) {
+                            cursorPosition--;
+                        }
+                    } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                        if (cursorPosition < value.get().length()) {
+                            cursorPosition++;
+                        }
+                    }
+                }
 
-        int leftCtrlState = GLFW.glfwGetKey(Naulasis.getInstance().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL);
-        int rightCtrlState = GLFW.glfwGetKey(Naulasis.getInstance().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL);
+                @Override
+                public void keyReleased(KeyEvent e) {
+                }
 
-        selectAll = leftCtrlState == GLFW.GLFW_PRESS || rightCtrlState == GLFW.GLFW_PRESS;
-    }
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    char c = e.getKeyChar();
+                    value.set(value.get().substring(0, cursorPosition) + c + value.get().substring(cursorPosition));
+                    cursorPosition++;
 
-    @Override
-    public void onKeyboardChar(char key){
-        if(!selected) return;
-
-        lastKeyTypedTime = System.currentTimeMillis();
-        sample.add(key);
-
-        text = getStringRepresentation(sample);
-    }
-
-    @Override
-    public void onKeyboardInt(int key){
-        if(!selected) return;
-
-        if(key == GLFW.GLFW_KEY_BACKSPACE && !sample.isEmpty()){
-            lastKeyTypedTime = System.currentTimeMillis();
-            currentCursorOpacity += 1;
-
-            if(selectAll){
-                sample.clear();
-            } else {
-                // NOTE: removeLast() is broken so we have to do it manually.
-                sample.remove(sample.size() - 1);
-            }
-
-            text = getStringRepresentation(sample);
+                    System.out.println("ni " + c);
+                }
+            });
         }
-    }
-
-    private String getStringRepresentation(ArrayList<Character> list) {
-        StringBuilder builder = new StringBuilder(list.size());
-
-        for(Character ch: list) {
-            builder.append(ch);
-        }
-
-        return builder.toString();
     }
 }
