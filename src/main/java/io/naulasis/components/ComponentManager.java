@@ -1,7 +1,7 @@
-package io.naulasis.model;
+package io.naulasis.components;
 
-import io.naulasis.model.impl.CheckBox;
-import io.naulasis.model.impl.TextInput;
+import io.naulasis.components.impl.CheckBox;
+import io.naulasis.components.impl.TextInput;
 import lombok.Getter;
 
 import java.util.ArrayList;

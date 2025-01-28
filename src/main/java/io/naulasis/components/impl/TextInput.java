@@ -1,13 +1,12 @@
-package io.naulasis.model.impl;
+package io.naulasis.components.impl;
 
 import imgui.ImDrawList;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.flag.ImDrawFlags;
 import imgui.flag.ImGuiCond;
-import imgui.flag.ImGuiKey;
 import imgui.type.ImString;
-import io.naulasis.model.Component;
+import io.naulasis.components.Component;
 import io.naulasis.utils.ColorConverter;
 
 import java.awt.event.KeyEvent;
@@ -80,5 +79,10 @@ public class TextInput extends Component {
                 }
             });
         }
+    }
+
+    @Override
+    public void destroy() {
+
     }
 }

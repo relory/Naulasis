@@ -1,11 +1,11 @@
-package io.naulasis.model.impl;
+package io.naulasis.components.impl;
 
 import imgui.ImDrawList;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.ImVec4;
 import imgui.flag.ImDrawFlags;
-import io.naulasis.model.Component;
+import io.naulasis.components.Component;
 import io.naulasis.utils.ColorConverter;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,10 +19,10 @@ import static io.naulasis.utils.ImGuiInternal.ImLerp;
 public class Slider extends Component {
 
     private final float Default;
-    private float currentPos, lastMousePosX, sliderPosX, minimumValue, maximumValue, ticks, value;
-    private boolean selected = false;
-
-    private ImVec4 color = new ImVec4(255, 0, 100, 100);
+    private float rounding = 12, thumbRadius = 8, animationSpeed = 7, currentPosX, lastMousePosX, sliderPosX, minimumValue, maximumValue, ticks, value;
+    private boolean selected = false, hideThumb, animated;
+    private ImVec2 position, size;
+    private ImVec4 progressColor = new ImVec4(255, 0, 100, 100), thumbColor = new ImVec4(255, 255, 255, 255);
     private String name;
 
     public Slider(String name, float minimum, float maximum, float aDefault, float ticks)  {
@@ -36,31 +36,36 @@ public class Slider extends Component {
 
     @Override
     public void draw() {
-        ImVec2 position = ImGui.getCursorPos();
+        if(position == null) position = ImGui.getCursorPos();
+        if(size == null) size = new ImVec2(500, 7);
         ImDrawList windowDrawList = ImGui.getWindowDrawList();
 
         float windowX = ImGui.getWindowPosX();
         float windowY = ImGui.getWindowPosY();
         sliderPosX = windowX + position.x;
 
-        if (currentPos == 0 && lastMousePosX == 0) {
+        if (currentPosX == 0 && lastMousePosX == 0) {
             lastMousePosX = windowX + position.x;
-            currentPos = windowX + position.x;
+            currentPosX = windowX + position.x;
         }
-        windowDrawList.addRectFilled(currentPos, windowY + position.y, windowX + position.x + 500, windowY + position.y + 7,
-                ColorConverter.colorToInt(45F, 45F, 45F, 255), 12, ImDrawFlags.RoundCornersRight);
 
-        windowDrawList.addRectFilled(windowX + position.x, windowY + position.y, currentPos, windowY + position.y + 7,
-                ColorConverter.colorToInt(color.x, color.y, color.z, color.w), 12, ImDrawFlags.RoundCornersLeft);
+        windowDrawList.addRectFilled(currentPosX, windowY + position.y, windowX + position.x + size.x, windowY + position.y + size.y,
+                ColorConverter.colorToInt(45F, 45F, 45F, 255F), rounding, ImDrawFlags.RoundCornersRight);
 
-        windowDrawList.addCircleFilled(currentPos, windowY + position.y +3.5f, 8, ColorConverter.colorToInt(255, 255, 255, 255));
+        windowDrawList.addRectFilled(windowX + position.x, windowY + position.y, currentPosX, windowY + position.y + size.y,
+                ColorConverter.colorToInt(progressColor.x, progressColor.y, progressColor.z, progressColor.w), rounding, ImDrawFlags.RoundCornersLeft);
+
+        if(!hideThumb) windowDrawList.addCircleFilled(currentPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(thumbColor.x, thumbColor.y, thumbColor.z, thumbColor.w));
 
         float deltaTime = ImGui.getIO().getDeltaTime();
-        float animationSpeed = 7;
+        if(animated) {
+            currentPosX = ImLerp(currentPosX, CalculateLocation(this.value), deltaTime * animationSpeed);
+        }
+        else {
+            currentPosX = CalculateLocation(this.value);
 
-        currentPos = ImLerp(currentPos, CalculateLocation(this.value), deltaTime * animationSpeed);
-
-        float sliderWidth = 500;
+        }
+        float sliderWidth = size.x;
         double d = Math.min(sliderWidth, Math.max(0, lastMousePosX - (windowX + position.x)));
         double value = (d / sliderWidth) * (this.maximumValue - this.minimumValue) + this.minimumValue;
         this.updateValue(value);
@@ -88,8 +93,13 @@ public class Slider extends Component {
         }
     }
 
+    @Override
+    public void destroy() {
+
+    }
+
     public float CalculateLocation(float value) {
-        return sliderPosX + ((Math.max(this.minimumValue, Math.min(this.maximumValue, value)) - this.minimumValue) / (this.maximumValue - minimumValue)) * 500;
+        return sliderPosX + ((Math.max(this.minimumValue, Math.min(this.maximumValue, value)) - this.minimumValue) / (this.maximumValue - minimumValue)) * size.x;
     }
 
     private float Round(double v, int p){
@@ -108,13 +118,6 @@ public class Slider extends Component {
         v = Math.min(a, v);
 
         return v;
-    }
-
-    private float calc(double n){
-        n = check(n, this.minimumValue, this.maximumValue);
-        n = Math.round(n * (1.0D / this.ticks)) / (1.0D / this.ticks);
-
-        return (float) n;
     }
 
     private void updateValue(double n){

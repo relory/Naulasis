@@ -1,8 +1,7 @@
 package io.naulasis;
 
-import io.naulasis.model.Component;
-import io.naulasis.model.ComponentManager;
-
+import io.naulasis.components.Component;
+import io.naulasis.components.ComponentManager;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Naulasis {
