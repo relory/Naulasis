@@ -1,4 +1,7 @@
 package io.naulasis.messageboxes;
 
-public class MessageBox {
+public abstract class MessageBox {
+    public abstract void show();
+
+    public abstract void kill();
 }

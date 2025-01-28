@@ -105,10 +105,11 @@ public class Entrypoint {
 
             button.setPosition(new ImVec2(50, 50));
             button.setSize(new ImVec2(150, 50));
-            button.setBackgroundColor(new ImVec4(0, 255, 0, 255));
-            button.setOutlineColor(new ImVec4(0, 0, 0, 255));
-            button.setTextColor(new ImVec4(0, 0, 0, 255));
-            button.setOutlineThickness(10);
+            button.setBackgroundColor(new ImVec4(30, 30, 30, 255));
+            button.setOutlineColor(new ImVec4(40, 40, 40, 255));
+            button.setClickedColor(new ImVec4(50, 50, 50, 255));
+            button.setTextColor(new ImVec4(75, 75, 75, 255));
+            button.setOutlineThickness(0.5f);
             button.draw();
 
             slider.setSize(new ImVec2(500, 8));
