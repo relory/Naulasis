@@ -63,6 +63,7 @@ public class Entrypoint {
         Switch switcher = new Switch(false);
 
         TextLink textLink = new TextLink();
+        TextComponent textComponent = new TextComponent("test", new ImVec2(250, 200), new ImVec4(50, 255, 50, 255));
 
         ImFont font = ImGui.getIO().getFonts().addFontFromFileTTF(System.getProperty("user.home") + "/.salorid/Fonts/InterVariable.ttf", 20.0f);
         ImGuiIO io = ImGui.getIO();
@@ -102,8 +103,12 @@ public class Entrypoint {
             switcher.setThumbRadius(8);
             switcher.draw();
 
-            button.setPosition(new ImVec2(100, 100));
-            button.setSize(new ImVec2(1000, 50));
+            button.setPosition(new ImVec2(50, 50));
+            button.setSize(new ImVec2(150, 50));
+            button.setBackgroundColor(new ImVec4(0, 255, 0, 255));
+            button.setOutlineColor(new ImVec4(0, 0, 0, 255));
+            button.setTextColor(new ImVec4(0, 0, 0, 255));
+            button.setOutlineThickness(10);
             button.draw();
 
             slider.setSize(new ImVec2(500, 8));
@@ -136,6 +141,8 @@ public class Entrypoint {
                 slider1.setAnimated(true);
                 switcher.setAnimated(true);
             }
+
+            textComponent.draw();
             /*
             float delta = ImGui.getIO().getDeltaTime();
             currentSize = ImLerp(currentSize, 800, delta);
