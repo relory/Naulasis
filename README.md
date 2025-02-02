@@ -1,1 +1,1 @@
-simple, modern and lightweight, LWJGL GUI library based on ImGui for glfw/opengl!
+simple, modern, customizable, and lightweight, LWJGL GUI library based on spair ImGui for glfw/opengl!
