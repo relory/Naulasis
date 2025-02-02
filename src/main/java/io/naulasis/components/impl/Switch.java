@@ -21,11 +21,11 @@ import static io.naulasis.utils.ImGuiInternal.ImLerp;
 @Getter @Setter
 public class Switch extends Component {
 
-    private float animationSpeed, currentPos, rounding = 12, thumbRadius = 8;
+    private float animationSpeed = 10, currentPos, rounding = 12, thumbRadius = 8;
     private ImVec4 thumbColor = new ImVec4(255, 255, 255, 255), disabledColor = new ImVec4(45, 45, 45, 45), enabledColor = new ImVec4(255, 10, 10, 255);
     private ImVec4 currentColor;
-    private ImVec2 position, size;
-    private boolean toggled, animated;
+    private ImVec2 position = new ImVec2(0,0), size = new ImVec2(55, 25);
+    private boolean toggled, animated = true;
 
     // Track the last window position;
     private float prevWindowX = -1, prevWindowY = -1;
@@ -37,43 +37,43 @@ public class Switch extends Component {
     @Override
     public void draw() {
         if (currentColor == null) currentColor = disabledColor;
-        ImVec2 position = new ImVec2(200, 100);
         ImDrawList windowDrawList = ImGui.getWindowDrawList();
 
         float windowX = ImGui.getWindowPosX();
         float windowY = ImGui.getWindowPosY();
         float deltaTime = ImGui.getIO().getDeltaTime();
-
+        ImVec2 minPos = new ImVec2(windowX + position.x, windowY + position.y);
+        ImVec2 maxPos = new ImVec2(windowX + position.x + size.x, windowY + position.y + size.y);
         // Check if the current window is moving
         if (prevWindowX != windowX || prevWindowY != windowY) {
-            currentPos = this.toggled ? windowX + position.x + 60 - 13 : windowX + position.x + 13;
+            currentPos = this.toggled ? maxPos.x - size.y / 2 : minPos.x + size.y / 2;
             prevWindowX = windowX;
             prevWindowY = windowY;
         }
 
         if (animated && ImGui.isWindowFocused()) {
-            currentPos = ImLerp(currentPos, this.toggled ? windowX + position.x + 60 - 13 : windowX + position.x + 13, deltaTime * animationSpeed);
+            currentPos = ImLerp(currentPos, this.toggled ? maxPos.x - size.y / 2 : minPos.x + size.y / 2, deltaTime * animationSpeed);
 
             currentColor = ImLerp(currentColor,
                     this.toggled ? new ImVec4(enabledColor.x, enabledColor.y, enabledColor.z, enabledColor.w) :
                             new ImVec4(disabledColor.x, disabledColor.y, disabledColor.z, disabledColor.w), deltaTime * animationSpeed);
         } else {
+            currentPos = this.toggled ? maxPos.x - size.y / 2 : minPos.x + size.y / 2;
             currentColor = this.toggled ? enabledColor : disabledColor;
         }
 
         windowDrawList.addRectFilled(
-                windowX + position.x, windowY + position.y,
-                windowX + position.x + 60, windowY + position.y + 26,
+                minPos, maxPos,
                 ColorConverter.colorToInt(currentColor.x, currentColor.y, currentColor.z, currentColor.w),
                 rounding, ImDrawFlags.RoundCornersAll
         );
 
         windowDrawList.addCircleFilled(
-                currentPos, windowY + position.y + 13,
+                currentPos, windowY + position.y + size.y / 2,
                 thumbRadius, ColorConverter.colorToInt(thumbColor.x, thumbColor.y, thumbColor.z, thumbColor.w)
         );
 
-        if (ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(windowX + position.x, windowY + position.y, windowX + position.x + 60, windowY + position.y + 26)) {
+        if (ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y)) {
             this.toggled = !this.toggled;
         }
     }

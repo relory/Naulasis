@@ -19,8 +19,8 @@ import static io.naulasis.utils.ImGuiInternal.ImLerp;
 public class Slider extends Component {
 
     private final float Default;
-    private float rounding = 12, thumbRadius = 8, animationSpeed = 7, currentPosX, lastMousePosX, sliderPosX, minimumValue, maximumValue, ticks, value;
-    private boolean selected = false, hideThumb, animated;
+    private float rounding = 12, thumbRadius = 8, animationSpeed = 10, currentPosX, lastMousePosX, sliderPosX, minimumValue, maximumValue, ticks, value;
+    private boolean selected = false, hideThumb, animated = true;
     private ImVec2 position, size;
     private ImVec4 progressColor = new ImVec4(255, 0, 100, 100), thumbColor = new ImVec4(255, 255, 255, 255);
     private String name;

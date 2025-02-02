@@ -12,10 +12,9 @@ import static io.naulasis.utils.ImGuiInternal.ImLerp;
 @Getter @Setter
 public class CheckBox extends Component {
 
-    private boolean selected = false;
-    private float rounding = 0, miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1, animationSpeed = 7;
+    private boolean selected, animated = true;
+    private float rounding = 6, miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1, animationSpeed = 10;
     private ImVec2 position, size;
-
 
     @Override
     public void draw() {
@@ -44,19 +43,25 @@ public class CheckBox extends Component {
         if(selected) {
             targetOpacity = 255;
             targetSize = size.x / 8;
-            targetRounding = 2;
+            targetRounding = rounding;
         } else {
             targetOpacity = 0;
             targetSize = size.x / 2;
-            targetRounding = rounding * 2;
+            targetRounding = 2;
         }
 
         ImVec2 miniRectMin = new ImVec2(ImGui.getWindowPosX() + position.x + miniRectSize, ImGui.getWindowPosY() + position.y + miniRectSize);
         ImVec2 miniRectMax = new ImVec2(ImGui.getWindowPosX() + position.x + size.x - miniRectSize, ImGui.getWindowPosY() + position.y + size.y - miniRectSize);
-
-        miniRectOpacity = ImLerp(miniRectOpacity, targetOpacity, delta * animationSpeed);
-        miniRectSize = ImLerp(miniRectSize, targetSize, delta * animationSpeed);
-        miniRectRounding = ImLerp(miniRectRounding, targetRounding, delta * animationSpeed);
+        if(animated) {
+            miniRectOpacity = ImLerp(miniRectOpacity, targetOpacity, delta * animationSpeed);
+            miniRectSize = ImLerp(miniRectSize, targetSize, delta * animationSpeed);
+            miniRectRounding = ImLerp(miniRectRounding, targetRounding, delta * animationSpeed);
+        }
+        else{
+            miniRectOpacity = targetOpacity;
+            miniRectSize = targetSize;
+            miniRectRounding = targetRounding;
+        }
         int MiniRectColor = ColorConverter.colorToInt(255, 0, 255, miniRectOpacity);
         drawList.addRectFilled(miniRectMin, miniRectMax, MiniRectColor, miniRectRounding, 240);
     }
