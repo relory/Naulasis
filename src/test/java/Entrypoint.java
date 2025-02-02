@@ -78,6 +78,7 @@ public class Entrypoint {
             posY += 50;
 
             checkbox.setPosition(new ImVec2(100, posY));
+            checkbox.setColor(new ImVec4(25, 25, 120, 255));
             checkbox.draw();
 
             Naulasis.end();
