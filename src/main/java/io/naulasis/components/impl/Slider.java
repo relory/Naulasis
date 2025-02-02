@@ -21,7 +21,7 @@ public class Slider extends Component {
     private final float Default;
     private float rounding = 12, thumbRadius = 8, animationSpeed = 10, currentPosX, lastMousePosX, sliderPosX, minimumValue, maximumValue, ticks, value;
     private boolean selected = false, hideThumb, animated = true;
-    private ImVec2 position, size;
+    private ImVec2 position = new ImVec2(0,0), size = new ImVec2(500, 7);;
     private ImVec4 progressColor = new ImVec4(255, 0, 100, 100), thumbColor = new ImVec4(255, 255, 255, 255);
     private String name;
 
@@ -36,8 +36,6 @@ public class Slider extends Component {
 
     @Override
     public void draw() {
-        if(position == null) position = ImGui.getCursorPos();
-        if(size == null) size = new ImVec2(500, 7);
         ImDrawList windowDrawList = ImGui.getWindowDrawList();
 
         float windowX = ImGui.getWindowPosX();

@@ -15,13 +15,11 @@ public class CheckBox extends Component {
 
     private boolean selected, animated = true;
     private float rounding = 6, miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1, animationSpeed = 10;
-    private ImVec2 position, size;
+    private ImVec2 position = new ImVec2(0,0), size = new ImVec2(20, 20);
     private ImVec4 color = new ImVec4(255, 0, 255, 255), outlineColor = new ImVec4(50, 50, 50, 150);
 
     @Override
     public void draw() {
-        if(position == null) position = ImGui.getCursorPos();
-        if(size == null) size = new ImVec2(20, 20);
         ImDrawList drawList = ImGui.getWindowDrawList();
 
         int converterOutlineColor = ColorConverter.colorToInt(outlineColor.x, outlineColor.y, outlineColor.z, outlineColor.w);
