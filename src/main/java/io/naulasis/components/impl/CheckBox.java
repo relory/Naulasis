@@ -16,7 +16,7 @@ public class CheckBox extends Component {
     private boolean selected, animated = true;
     private float rounding = 6, miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1, animationSpeed = 10;
     private ImVec2 position, size;
-    private ImVec4 color = new ImVec4(255, 0, 255, 255);
+    private ImVec4 color = new ImVec4(255, 0, 255, 255), outlineColor = new ImVec4(50, 50, 50, 150);
 
     @Override
     public void draw() {
@@ -24,14 +24,14 @@ public class CheckBox extends Component {
         if(size == null) size = new ImVec2(20, 20);
         ImDrawList drawList = ImGui.getWindowDrawList();
 
-        int outlineColor = ColorConverter.colorToInt(50, 50, 50, 150);
+        int converterOutlineColor = ColorConverter.colorToInt(outlineColor.x, outlineColor.y, outlineColor.z, outlineColor.w);
         int backgroundColor = ColorConverter.colorToInt(25, 25, 25, 150);
 
         ImVec2 minPos = new ImVec2(ImGui.getWindowPosX() + position.x, ImGui.getWindowPosY() + position.y);
         ImVec2 maxPos = new ImVec2(ImGui.getWindowPosX() + position.x + size.x, ImGui.getWindowPosY() + position.y + size.x);
 
         drawList.addRectFilled(minPos, maxPos, backgroundColor, rounding, 240);
-        drawList.addRect(minPos, maxPos, outlineColor, rounding, 240);
+        drawList.addRect(minPos, maxPos, converterOutlineColor, rounding, 240);
 
         if(ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0)){
             selected =! selected;
