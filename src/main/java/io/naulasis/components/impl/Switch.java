@@ -44,6 +44,7 @@ public class Switch extends Component {
         float deltaTime = ImGui.getIO().getDeltaTime();
         ImVec2 minPos = new ImVec2(windowX + position.x, windowY + position.y);
         ImVec2 maxPos = new ImVec2(windowX + position.x + size.x, windowY + position.y + size.y);
+
         // Check if the current window is moving
         if (prevWindowX != windowX || prevWindowY != windowY) {
             currentPos = this.toggled ? maxPos.x - size.y / 2 : minPos.x + size.y / 2;

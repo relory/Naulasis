@@ -32,12 +32,11 @@ public class TextInput extends Component {
 
     private float currentCursorX, currentCursorOpacity = 255f;
     private boolean fadeIn = false;
-    private long LastKeyTypedTime;
-    ArrayList<Character> sample = new ArrayList<>();
+    private long lastKeyTypedTime;
+    private final ArrayList<Character> sample = new ArrayList<>();
 
     @Override
     public void draw(){
-
         glfwSetCharCallback(Naulasis.getInstance().getWindow(), (windowHandle, codepoint) -> {
             onKeyboardChar((char) codepoint);
         });
@@ -45,7 +44,6 @@ public class TextInput extends Component {
         glfwSetKeyCallback(Naulasis.getInstance().getWindow(), (windowHandle, key, scancode, action, mods) -> {
             if(action != GLFW_RELEASE) {
                 onKeyboardInt(key);
-
             }
         });
 
@@ -57,20 +55,25 @@ public class TextInput extends Component {
         ImVec2 textPos = new ImVec2(minPos.x + ImGui.calcTextSize(" ").x, minPos.y + (size.y - textSize.y) / 2);
 
         drawList.addRectFilled(minPos, maxPos, ColorConverter.colorToInt(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w), rounding, ImDrawFlags.RoundCornersAll);
-        if(outline)
+
+        if (outline) {
             drawList.addRect(minPos, maxPos, ColorConverter.colorToInt(outlineColor.x, outlineColor.y, outlineColor.z, outlineColor.w), rounding, ImDrawFlags.RoundCornersAll, outlineThickness);
+        }
 
         drawList.addText(ImGui.getFont(), 20, textPos, ColorConverter.colorToInt(textColor.x, textColor.y, textColor.z, textColor.w), text);
 
         float targetCursorPosition = minPos.x + ImGui.getFont().calcTextSizeA(20, Float.MAX_VALUE, 0, text).x;
         float delta = ImGui.getIO().getDeltaTime();
 
-        if(animated)
+        if(animated) {
             currentCursorX = ImLerp(currentCursorX, targetCursorPosition, delta * animationSpeed);
-        else
+        } else {
             currentCursorX = targetCursorPosition;
-        if(System.currentTimeMillis() - LastKeyTypedTime > 500){
+        }
+
+        if (System.currentTimeMillis() - lastKeyTypedTime > 500){
             active = false;
+
             if (fadeIn && currentCursorOpacity < 255) {
                 currentCursorOpacity += 1f;
                 if (currentCursorOpacity >= 255) {
@@ -84,64 +87,64 @@ public class TextInput extends Component {
                     fadeIn = true;
                 }
             }
-        }
-        else {
+        } else {
             active = true;
             currentCursorOpacity = 255f;
             fadeIn = false;
         }
-        if(selected) drawList.addRectFilled(new ImVec2(currentCursorX + 6 ,minPos.y + size.y / 8), new ImVec2(currentCursorX + 8, maxPos.y - size.y / 8), ColorConverter.colorToInt(cursorColor.x, cursorColor.y, cursorColor.z, currentCursorOpacity), 12f, ImDrawFlags.RoundCornersAll);
-        if(ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0)){
-            selected = true;
+
+        if (selected) {
+            drawList.addRectFilled(new ImVec2(currentCursorX + 6 ,minPos.y + size.y / 8), new ImVec2(currentCursorX + 8, maxPos.y - size.y / 8), ColorConverter.colorToInt(cursorColor.x, cursorColor.y, cursorColor.z, currentCursorOpacity), 12f, ImDrawFlags.RoundCornersAll);
         }
-        if(!ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0)){
-            selected = false;
-        }
+
+        selected = ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0);
+
         int leftCtrlState = GLFW.glfwGetKey(Naulasis.getInstance().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL);
         int rightCtrlState = GLFW.glfwGetKey(Naulasis.getInstance().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL);
-        if (leftCtrlState == GLFW.GLFW_PRESS || rightCtrlState == GLFW.GLFW_PRESS) {
-            selectAll = true;
-        }
-        else{
-            selectAll = false;
-        }
+
+        selectAll = leftCtrlState == GLFW.GLFW_PRESS || rightCtrlState == GLFW.GLFW_PRESS;
     }
 
     @Override
     public void destroy() {
-
     }
 
     @Override
     public void onKeyboardChar(char key){
         if(!selected) return;
-        LastKeyTypedTime = System.currentTimeMillis();
+        lastKeyTypedTime = System.currentTimeMillis();
+
         sample.add(key);
         text = getStringRepresentation(sample);
     }
     @Override
     public void onKeyboardInt(int key){
         if(!selected) return;
-        if(key == GLFW_KEY_LEFT){
 
+        if(key == GLFW_KEY_LEFT){
+            // TODO -> Look into this logic
         }
+
         if(key == GLFW.GLFW_KEY_BACKSPACE && !sample.isEmpty()){
-            LastKeyTypedTime = System.currentTimeMillis();
+            lastKeyTypedTime = System.currentTimeMillis();
             currentCursorOpacity += 1;
+
             if(selectAll){
                 sample.clear();
-            }
-            else{
+            } else{
                 sample.remove(sample.size() - 1);
             }
+
             text = getStringRepresentation(sample);
         }
     }
     private String getStringRepresentation(ArrayList<Character> list) {
         StringBuilder builder = new StringBuilder(list.size());
-        for(Character ch: list) {
+
+        for (Character ch: list) {
             builder.append(ch);
         }
+
         return builder.toString();
     }
 }

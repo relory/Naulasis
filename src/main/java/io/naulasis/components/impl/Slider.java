@@ -58,11 +58,11 @@ public class Slider extends Component {
         float deltaTime = ImGui.getIO().getDeltaTime();
         if(animated) {
             currentPosX = ImLerp(currentPosX, CalculateLocation(this.value), deltaTime * animationSpeed);
-        }
-        else {
+        } else {
             currentPosX = CalculateLocation(this.value);
 
         }
+
         float sliderWidth = size.x;
         double d = Math.min(sliderWidth, Math.max(0, lastMousePosX - (windowX + position.x)));
         double value = (d / sliderWidth) * (this.maximumValue - this.minimumValue) + this.minimumValue;
@@ -79,6 +79,7 @@ public class Slider extends Component {
 
         if (selected) {
             float mouseX = ImGui.getMousePos().x;
+
             if (mouseX > windowX + position.x && mouseX < windowX + position.x + sliderWidth) {
                 lastMousePosX = mouseX;
             }

@@ -56,16 +56,19 @@ public class Button extends Component {
         clicked = ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0);
         lastClickedTime = clicked ? System.currentTimeMillis() : lastClickedTime;
 
-        ImVec4 targetbackgroundColor;
-        if(System.currentTimeMillis() - lastClickedTime > 250)
-            targetbackgroundColor = backgroundColor;
-        else
-            targetbackgroundColor = clickedColor;
+        ImVec4 targetBackGroundColor;
 
-        if(animated)
-            currentBackgroundColor = ImGuiInternal.ImLerp(currentBackgroundColor, targetbackgroundColor, ImGui.getIO().getDeltaTime() * 10);
-        else
-            currentBackgroundColor = targetbackgroundColor;
+        if (System.currentTimeMillis() - lastClickedTime > 250) {
+            targetBackGroundColor = backgroundColor;
+        } else {
+            targetBackGroundColor = clickedColor;
+        }
+
+        if(animated) {
+            currentBackgroundColor = ImGuiInternal.ImLerp(currentBackgroundColor, targetBackGroundColor, ImGui.getIO().getDeltaTime() * 10);
+        } else {
+            currentBackgroundColor = targetBackGroundColor;
+        }
     }
 
     @Override

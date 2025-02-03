@@ -52,16 +52,17 @@ public class CheckBox extends Component {
 
         ImVec2 miniRectMin = new ImVec2(ImGui.getWindowPosX() + position.x + miniRectSize, ImGui.getWindowPosY() + position.y + miniRectSize);
         ImVec2 miniRectMax = new ImVec2(ImGui.getWindowPosX() + position.x + size.x - miniRectSize, ImGui.getWindowPosY() + position.y + size.y - miniRectSize);
+
         if(animated) {
             miniRectOpacity = ImLerp(miniRectOpacity, targetOpacity, delta * animationSpeed);
             miniRectSize = ImLerp(miniRectSize, targetSize, delta * animationSpeed);
             miniRectRounding = ImLerp(miniRectRounding, targetRounding, delta * animationSpeed);
-        }
-        else{
+        } else {
             miniRectOpacity = targetOpacity;
             miniRectSize = targetSize;
             miniRectRounding = targetRounding;
         }
+
         int MiniRectColor = ColorConverter.colorToInt(color.x, color.y, color.z, miniRectOpacity);
         drawList.addRectFilled(miniRectMin, miniRectMax, MiniRectColor, miniRectRounding, 240);
     }
