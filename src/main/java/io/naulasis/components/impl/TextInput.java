@@ -97,7 +97,12 @@ public class TextInput extends Component {
             drawList.addRectFilled(new ImVec2(currentCursorX + 6 ,minPos.y + size.y / 8), new ImVec2(currentCursorX + 8, maxPos.y - size.y / 8), ColorConverter.colorToInt(cursorColor.x, cursorColor.y, cursorColor.z, currentCursorOpacity), 12f, ImDrawFlags.RoundCornersAll);
         }
 
-        selected = ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0);
+        if(ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0)){
+            selected = true;
+        }
+        if(!ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0)){
+            selected = false;
+        }
 
         int leftCtrlState = GLFW.glfwGetKey(Naulasis.getInstance().getWindow(), GLFW.GLFW_KEY_LEFT_CONTROL);
         int rightCtrlState = GLFW.glfwGetKey(Naulasis.getInstance().getWindow(), GLFW.GLFW_KEY_RIGHT_CONTROL);
