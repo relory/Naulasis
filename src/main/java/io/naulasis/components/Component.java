@@ -8,8 +8,8 @@ import java.awt.event.KeyListener;
 
 @Getter @Setter
 public abstract class Component {
-    public abstract void draw();
-    public abstract void destroy();
+    public void draw(){}
+    public  void destroy(){}
 
     public void onKeyboardChar(char key) {}
     public void onKeyboardInt(int key) {}

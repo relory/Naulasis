@@ -11,19 +11,13 @@ import io.naulasis.utils.ImGuiInternal;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Button is a part of Naulasis
- * Which was created / maintained by
- *
- * @author MTR
- */
 
 @Getter
 public class Button extends Component {
 
     private long lastClickedTime = 0L;
 
-    private boolean clicked = false;
+    private boolean clicked, hovered, pressed, released;
     private ImVec4 currentBackgroundColor = new ImVec4(255, 255, 255, 50);
 
     @Setter
@@ -31,7 +25,7 @@ public class Button extends Component {
     @Setter
     private ImVec4 outlineColor = new ImVec4(40, 40, 40, 255), backgroundColor = new ImVec4(30, 30, 30, 50), textColor = new ImVec4(90, 90, 90, 255);
     @Setter
-    private float outlineThickness = 0.5f, rounding = 8;
+    private float outlineThickness = 0.5f, rounding = 8, animationSpeed = 10, holdTime = 250;
     @Setter
     private ImVec4 clickedColor = new ImVec4(40, 40, 40, 255);
     @Setter
@@ -41,9 +35,9 @@ public class Button extends Component {
 
     @Override
     public void draw() {
-
-        ImVec2 minPos = new ImVec2(ImGui.getWindowPosX() + position.x, ImGui.getWindowPosY() + position.y);
-        ImVec2 maxPos = new ImVec2(ImGui.getWindowPosX() + position.x + size.x, ImGui.getWindowPosY() + position.y + size.y);
+        if(position == null) position = ImGui.getCursorPos();
+        ImVec2 minPos = new ImVec2(ImGui.getWindowPosX() + position.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y);
+        ImVec2 maxPos = new ImVec2(ImGui.getWindowPosX() + position.x + size.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y + size.y);
 
         ImDrawList drawList = ImGui.getWindowDrawList();
         ImVec2 textSize = ImGui.calcTextSize(text);
@@ -53,22 +47,23 @@ public class Button extends Component {
         drawList.addText(ImGui.getFont(), 20, new ImVec2(textPos), ColorConverter.colorToInt(textColor.x, textColor.y, textColor.z, textColor.w), text);
         drawList.addRect(minPos, maxPos, ColorConverter.colorToInt(outlineColor.x, outlineColor.y, outlineColor.z, outlineColor.w), rounding, ImDrawFlags.RoundCornersAll, outlineThickness);
 
-        clicked = ImGui.isMouseHoveringRect(minPos, maxPos) && ImGui.isMouseClicked(0);
+        hovered = ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+
         lastClickedTime = clicked ? System.currentTimeMillis() : lastClickedTime;
 
-        ImVec4 targetBackGroundColor;
+        ImVec4 targetbackgroundColor;
+        if(System.currentTimeMillis() - lastClickedTime > holdTime)
+            targetbackgroundColor = backgroundColor;
+        else
+            targetbackgroundColor = clickedColor;
 
-        if (System.currentTimeMillis() - lastClickedTime > 250) {
-            targetBackGroundColor = backgroundColor;
-        } else {
-            targetBackGroundColor = clickedColor;
-        }
-
-        if(animated) {
-            currentBackgroundColor = ImGuiInternal.ImLerp(currentBackgroundColor, targetBackGroundColor, ImGui.getIO().getDeltaTime() * 10);
-        } else {
-            currentBackgroundColor = targetBackGroundColor;
-        }
+        if(animated)
+            currentBackgroundColor = ImGuiInternal.ImLerp(currentBackgroundColor, targetbackgroundColor, ImGui.getIO().getDeltaTime() * animationSpeed);
+        else
+            currentBackgroundColor = targetbackgroundColor;
     }
 
     @Override

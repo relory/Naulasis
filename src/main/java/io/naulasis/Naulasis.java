@@ -5,13 +5,7 @@ import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.flag.ImDrawFlags;
 import imgui.flag.ImGuiWindowFlags;
-import io.naulasis.components.Component;
-import io.naulasis.components.ComponentManager;
 import io.naulasis.utils.ColorConverter;
-
-import java.awt.event.MouseAdapter;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 public class Naulasis {
     private static boolean allowDragging;

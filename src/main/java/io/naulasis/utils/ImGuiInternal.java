@@ -56,6 +56,14 @@ public class ImGuiInternal {
         );
     }
 
+    public static float ImFloor(float f){
+        return (float)((f >= 0 || (float)(int)f == f) ? (int)f : (int)f - 1);
+    }
+
+    public static ImVec2 ImFloor(ImVec2 v){
+        return new ImVec2(ImFloor(v.x), ImFloor(v.y));
+    }
+
     public static double ImPow(double x, double y) {
         return pow(x, y);
     }

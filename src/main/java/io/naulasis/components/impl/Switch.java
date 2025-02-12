@@ -12,12 +12,6 @@ import lombok.Setter;
 
 import static io.naulasis.utils.ImGuiInternal.ImLerp;
 
-/**
- * Switch is a part of Naulasis
- * Which was created / maintained by
- *
- * @author MTR
- */
 @Getter @Setter
 public class Switch extends Component {
 
@@ -25,7 +19,7 @@ public class Switch extends Component {
     private ImVec4 thumbColor = new ImVec4(255, 255, 255, 255), disabledColor = new ImVec4(45, 45, 45, 45), enabledColor = new ImVec4(255, 10, 10, 255);
     private ImVec4 currentColor;
     private ImVec2 position = new ImVec2(0,0), size = new ImVec2(55, 25);
-    private boolean toggled, animated = true;
+    private boolean toggled, animated = true, clicked, hovered, pressed, released;
 
     // Track the last window position;
     private float prevWindowX = -1, prevWindowY = -1;
@@ -40,16 +34,14 @@ public class Switch extends Component {
         ImDrawList windowDrawList = ImGui.getWindowDrawList();
 
         float windowX = ImGui.getWindowPosX();
-        float windowY = ImGui.getWindowPosY();
+        float windowY = ImGui.getWindowPosY() - ImGui.getScrollY();
         float deltaTime = ImGui.getIO().getDeltaTime();
         ImVec2 minPos = new ImVec2(windowX + position.x, windowY + position.y);
         ImVec2 maxPos = new ImVec2(windowX + position.x + size.x, windowY + position.y + size.y);
-
         // Check if the current window is moving
-        if (prevWindowX != windowX || prevWindowY != windowY) {
+        if (prevWindowX != windowX) {
             currentPos = this.toggled ? maxPos.x - size.y / 2 : minPos.x + size.y / 2;
             prevWindowX = windowX;
-            prevWindowY = windowY;
         }
 
         if (animated && ImGui.isWindowFocused()) {
@@ -77,6 +69,11 @@ public class Switch extends Component {
         if (ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y)) {
             this.toggled = !this.toggled;
         }
+
+        hovered = ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
     }
 
     @Override

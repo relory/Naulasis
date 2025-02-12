@@ -8,12 +8,13 @@ import io.naulasis.components.Component;
 import io.naulasis.utils.ColorConverter;
 import lombok.Getter;
 import lombok.Setter;
+
 import static io.naulasis.utils.ImGuiInternal.ImLerp;
 
 @Getter @Setter
 public class CheckBox extends Component {
 
-    private boolean selected, animated = true;
+    private boolean selected, destroyed, animated = true, hovered, clicked, pressed, released;
     private float rounding = 6, miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1, animationSpeed = 10;
     private ImVec2 position = new ImVec2(0,0), size = new ImVec2(20, 20);
     private ImVec4 color = new ImVec4(255, 0, 255, 255), outlineColor = new ImVec4(50, 50, 50, 150);
@@ -25,8 +26,9 @@ public class CheckBox extends Component {
         int converterOutlineColor = ColorConverter.colorToInt(outlineColor.x, outlineColor.y, outlineColor.z, outlineColor.w);
         int backgroundColor = ColorConverter.colorToInt(25, 25, 25, 150);
 
-        ImVec2 minPos = new ImVec2(ImGui.getWindowPosX() + position.x, ImGui.getWindowPosY() + position.y);
-        ImVec2 maxPos = new ImVec2(ImGui.getWindowPosX() + position.x + size.x, ImGui.getWindowPosY() + position.y + size.x);
+        if(destroyed) return;
+        ImVec2 minPos = new ImVec2(ImGui.getWindowPosX() + position.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y);
+        ImVec2 maxPos = new ImVec2(ImGui.getWindowPosX() + position.x + size.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y + size.x);
 
         drawList.addRectFilled(minPos, maxPos, backgroundColor, rounding, 240);
         drawList.addRect(minPos, maxPos, converterOutlineColor, rounding, 240);
@@ -50,18 +52,24 @@ public class CheckBox extends Component {
             targetRounding = 2;
         }
 
-        ImVec2 miniRectMin = new ImVec2(ImGui.getWindowPosX() + position.x + miniRectSize, ImGui.getWindowPosY() + position.y + miniRectSize);
-        ImVec2 miniRectMax = new ImVec2(ImGui.getWindowPosX() + position.x + size.x - miniRectSize, ImGui.getWindowPosY() + position.y + size.y - miniRectSize);
+        ImVec2 miniRectMin = new ImVec2(ImGui.getWindowPosX() + position.x + miniRectSize, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y + miniRectSize);
+        ImVec2 miniRectMax = new ImVec2(ImGui.getWindowPosX() + position.x + size.x - miniRectSize, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y + size.y - miniRectSize);
 
         if(animated) {
             miniRectOpacity = ImLerp(miniRectOpacity, targetOpacity, delta * animationSpeed);
             miniRectSize = ImLerp(miniRectSize, targetSize, delta * animationSpeed);
             miniRectRounding = ImLerp(miniRectRounding, targetRounding, delta * animationSpeed);
-        } else {
+        }
+        else{
             miniRectOpacity = targetOpacity;
             miniRectSize = targetSize;
             miniRectRounding = targetRounding;
         }
+
+        hovered = ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
 
         int MiniRectColor = ColorConverter.colorToInt(color.x, color.y, color.z, miniRectOpacity);
         drawList.addRectFilled(miniRectMin, miniRectMax, MiniRectColor, miniRectRounding, 240);
