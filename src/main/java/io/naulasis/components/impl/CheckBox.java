@@ -26,7 +26,7 @@ public class CheckBox extends Component {
         int converterOutlineColor = ColorConverter.colorToInt(outlineColor.x, outlineColor.y, outlineColor.z, outlineColor.w);
         int backgroundColor = ColorConverter.colorToInt(25, 25, 25, 150);
 
-        if(destroyed) return;
+        if (destroyed) return;
         ImVec2 minPos = new ImVec2(ImGui.getWindowPosX() + position.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y);
         ImVec2 maxPos = new ImVec2(ImGui.getWindowPosX() + position.x + size.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y + size.x);
 

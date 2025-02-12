@@ -3,8 +3,12 @@ import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import io.naulasis.Naulasis;
 import io.naulasis.components.impl.*;
+import io.naulasis.messageboxes.MessageBox;
+import io.naulasis.messageboxes.impl.WarningBox;
+import io.naulasis.messageboxes.impl.YesNoBox;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -36,7 +40,7 @@ public class Entrypoint {
         ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
         imGuiGl3.init("#version 130");
         Naulasis naulasis = new Naulasis();
-        naulasis.Init(glfwWindow);
+        naulasis.init(glfwWindow);
         ImFont font = ImGui.getIO().getFonts().addFontFromFileTTF(System.getProperty("user.home") + "/.salorid/Fonts/InterVariable.ttf", 20.0f);
         ImGuiIO io = ImGui.getIO();
         ImFontAtlas fontAtlas = io.getFonts();
@@ -53,62 +57,20 @@ public class Entrypoint {
         child.setPosition(new ImVec2(50, 50));
         child.setSize(new ImVec2(500, 300));
         child.setBackgroundColor(new ImVec4(0,0,0,255));
+
+        YesNoBox yesNoBox = new YesNoBox();
+        WarningBox warningBox = new WarningBox();
+
         while(!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
             imGuiGlfw.newFrame();
             imGuiGl3.newFrame();
             ImGui.newFrame();
             Naulasis.begin("hello world");
-            child.begin("showcase");
-            int posY = 50;
-            slider.setPosition(new ImVec2(100, posY));
-            slider.draw();
-            posY += 100;
 
-            button.setPosition(new ImVec2(100, posY));
-            button.setSize(new ImVec2(125, 35));
-            button.setText("destroy Slider");
-            if(button.isClicked()){
-                if(slider.isDestroyed()){
-                    slider.build();
-                }
-                else{
-                    slider.destroy();
-                }
-            }
-            if(button.isReleased()){
-                System.out.println("released");
-            }
+            yesNoBox.show();
+            //warningBox.show();
 
-            slider.setAnimationSpeed(5);
-
-            slider.setThumbColor(slider.isSelected() ? new ImVec4(255, 20, 20, 255) : new ImVec4(255, 255, 255, 255));
-
-
-            button.setHoldTime(250);
-            button.setAnimated(false);
-            button.draw();
-            posY += 100;
-
-            textInput.setPosition(new ImVec2(100, posY));
-            textInput.setSize(new ImVec2(300, 30));
-            textInput.draw();
-            posY += 100;
-
-            switcher.setPosition(new ImVec2(100, posY));
-            switcher.draw();
-            switcher.setAnimated(true);
-
-            posY += 100;
-
-            checkbox.setPosition(new ImVec2(100, posY));
-            checkbox.setColor(new ImVec4(255, 25, 120, 255));
-            checkbox.setPosition(new ImVec2(100, posY));
-            checkbox.draw();
-            posY += 100;
-
-            ImGui.setCursorPosY(posY);
-            child.end();
             Naulasis.end();
             ImGui.render();
             glClearColor(0.5f, 0.5f, 0.5f, 1f);

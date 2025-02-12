@@ -13,14 +13,17 @@ import lombok.Setter;
 
 @Getter @Setter
 public class Child extends Component {
+
     private ImVec2 position = new ImVec2(0, 0), size = new ImVec2(0,0);
     private ImVec4 backgroundColor = new ImVec4(30, 30, 30, 255), borderColor = new ImVec4(55, 55, 55, 255);
+
     private float rounding = 15f, scrollY, scrollX, animationSpeed = 10f, sensitivity = 1.0f, stopScrollValue = 0.1f;
-    private boolean border = false, hovered, pressed, clicked, released;
+    private boolean border, hovered, pressed, clicked, released;
 
     public void begin(String ID){
         ImVec2 lastCursorPosition = ImGui.getCursorPos();
         ImGui.setCursorPos(position);
+
         ImGui.pushStyleColor(ImGuiCol.ChildBg, ColorConverter.colorToInt(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w));
         ImGui.beginChild("##" + ID, size.x, size.y, border, ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar);
         ImGui.setCursorPos(lastCursorPosition);

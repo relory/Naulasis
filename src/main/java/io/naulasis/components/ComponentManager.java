@@ -12,15 +12,29 @@ import java.util.List;
 public class ComponentManager {
 
     private static ComponentManager instance;
-    private final List<Component> Components = new ArrayList<>();
+    private final List<Component> components = new ArrayList<>();
 
     private ComponentManager() {
-        Components.addAll(Arrays.asList(
+        components.addAll(Arrays.asList(
                 new TextInput(),
                 new CheckBox()
         ));
     }
 
+    /**
+     * Allows you to register a new component from an external project
+     * @param component to identify the component you want to register!
+     */
+    public void registerComponent(Component component) {
+        if (!components.contains(component)) {
+            components.add(component);
+        }
+    }
+
+    /**
+     * Getting the instance of the component manager
+     * @return ComponentManager.java
+     */
     public static ComponentManager getInstance() {
         if (instance == null) {
             instance = new ComponentManager();
