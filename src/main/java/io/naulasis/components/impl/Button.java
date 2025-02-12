@@ -32,6 +32,8 @@ public class Button extends Component {
     private boolean animated = true;
     @Setter
     private String text = "";
+    @Setter
+    private Runnable onClick = null;
 
     @Override
     public void draw() {
@@ -54,16 +56,22 @@ public class Button extends Component {
 
         lastClickedTime = clicked ? System.currentTimeMillis() : lastClickedTime;
 
-        ImVec4 targetbackgroundColor;
-        if(System.currentTimeMillis() - lastClickedTime > holdTime)
-            targetbackgroundColor = backgroundColor;
-        else
-            targetbackgroundColor = clickedColor;
+        if (clicked && onClick != null) {
+            onClick.run();
+        }
 
-        if(animated)
+        ImVec4 targetbackgroundColor;
+        if(System.currentTimeMillis() - lastClickedTime > holdTime) {
+            targetbackgroundColor = backgroundColor;
+        } else {
+            targetbackgroundColor = clickedColor;
+        }
+
+        if(animated) {
             currentBackgroundColor = ImGuiInternal.ImLerp(currentBackgroundColor, targetbackgroundColor, ImGui.getIO().getDeltaTime() * animationSpeed);
-        else
+        } else {
             currentBackgroundColor = targetbackgroundColor;
+        }
     }
 
     @Override

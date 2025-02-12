@@ -54,11 +54,7 @@ public class YesNoBox extends MessageBox {
 
             ImVec2 textSize = ImGui.calcTextSize("Yes");
             ImVec2 textPos = new ImVec2(minPos.x + (size.x - textSize.x) / 2f, minPos.y + (size.y - textSize.y) / 2);
-            ImVec2 checkPos = textPos.clone();
 
-            checkPos.set(checkPos.x - 75, checkPos.y);
-
-            drawList.addText(Naulasis.getIconsFont(), 20, checkPos, ColorConverter.colorToInt(0, 255, 0, currentOpacity), "A");
             drawList.addText(textPos, ColorConverter.colorToInt(255, 255, 255, currentOpacity), "Yes");
 
             ImVec2 lineStart = new ImVec2(minPos.x, maxPos.y);

@@ -5,7 +5,6 @@ import imgui.flag.ImDrawFlags;
 import imgui.flag.ImGuiWindowFlags;
 import io.naulasis.utils.ColorConverter;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class Naulasis {
@@ -15,18 +14,10 @@ public class Naulasis {
     // NOTE: Made this static because of JNI!
     private static long window;
     private String currentPath = System.getProperty("user.home");
-    @Getter
-    @Setter private static ImFont iconsFont = null;
 
     public void init(long window) {
         Naulasis.window = window;
         System.out.println("Initializing Naulasis...");
-
-        setIconsFont(ImGui.getIO().getFonts().addFontFromFileTTF(System.getProperty("user.home") + "/Desktop/Projects/Recoding/Naulasis/src/main/resources/fonts/Glyphter.ttf", 30));
-        ImGuiIO io = ImGui.getIO();
-        ImFontAtlas fontAtlas = io.getFonts();
-
-        fontAtlas.build();
     }
 
     public long getWindow(){

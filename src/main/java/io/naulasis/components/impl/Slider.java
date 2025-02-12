@@ -55,8 +55,6 @@ public class Slider extends Component {
         float windowY = ImGui.getWindowPosY() - ImGui.getScrollY();
         sliderPosX = windowX + position.x;
 
-
-
         if(destroyed){
             if(fadeOutAnimation) {
                 currentPosX = ImLerp(currentPosX, CalculateLocation(minimumValue), deltaTime * animationSpeed);
