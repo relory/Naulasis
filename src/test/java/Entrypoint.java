@@ -3,11 +3,12 @@ import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 import io.naulasis.Naulasis;
 import io.naulasis.components.impl.*;
-import io.naulasis.messageboxes.MessageBox;
 import io.naulasis.messageboxes.impl.WarningBox;
 import io.naulasis.messageboxes.impl.YesNoBox;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -61,15 +62,85 @@ public class Entrypoint {
         YesNoBox yesNoBox = new YesNoBox();
         WarningBox warningBox = new WarningBox();
 
+        KeyInput keyInput = new KeyInput();
+
+        RangeSlider rangeSlider = new RangeSlider(1,100,25,75,1);
+        Set<String> fruits = new HashSet<>();
+
+        // Add elements to the Set
+        fruits.add("Basic");
+        fruits.add("Advanced");
+        fruits.add("Silent");
+
+        Combobox combobox = new Combobox(fruits, "Orange");
+        combobox.setBackgroundColor(new ImVec4(30,30,30,255));
+
         while(!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
             imGuiGlfw.newFrame();
             imGuiGl3.newFrame();
             ImGui.newFrame();
             Naulasis.begin("hello world");
+            rangeSlider.setPosition(new ImVec2(50, 50));
+            rangeSlider.setDestroyedHighValue(rangeSlider.getMaximumValue());
+            rangeSlider.setDestroyedLowValue(rangeSlider.getMinimumValue());
+            rangeSlider.draw();
 
-            yesNoBox.show();
-            //warningBox.show();
+            combobox.draw();
+            combobox.setPosition(new ImVec2(100, 100));
+
+            System.out.println(ImGui.getIO().getFramerate());
+            switcher.setPosition(new ImVec2(400, 200));
+            switcher.setDestroyedValue(!switcher.isToggled());
+            switcher.draw();
+            keyInput.setSize(new ImVec2(50, 50));
+            keyInput.setPosition(new ImVec2(50, 50));
+            /*
+            glfwSetMouseButtonCallback(Naulasis.getInstance().getWindow(), (windowHandle, codepoint)->{
+
+            });
+
+             */
+
+            button.setPosition(new ImVec2(50, 200));
+            button.setText("toggle Destroyed");
+            button.setSize(new ImVec2(160, 50));
+            button.setFontSize(20);
+            button.draw();
+            textInput.draw();
+            textInput.setPosition(new ImVec2(new ImVec2(100, 400)));
+            glfwSetCharCallback(Naulasis.getInstance().getWindow(), (windowHandle, codepoint) -> {
+                textInput.onKeyboardChar((char) codepoint);
+            });
+            glfwSetKeyCallback(Naulasis.getInstance().getWindow(), (windowHandle, key, scancode, action, mods) -> {
+                if(action != GLFW_RELEASE) {
+                    textInput.onKeyboardInt(key);
+                }
+            });
+            if(button.isClicked()){
+                if(textInput.isDestroyed()){
+                    textInput.build();
+                }
+                else{
+                    textInput.destroy();
+                }
+
+                if(switcher.isDestroyed()){
+                    switcher.build();
+                }
+                else{
+                    switcher.destroy();
+                }
+            }
+            if(combobox.getSelectedItem() == "Silent"){
+                if(rangeSlider.isDestroyed()){
+                    rangeSlider.build();
+                }
+            }
+            else{
+                if(!rangeSlider.isDestroyed())
+                    rangeSlider.destroy();
+            }
 
             Naulasis.end();
             ImGui.render();

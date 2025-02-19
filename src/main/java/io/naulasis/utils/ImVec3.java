@@ -1,18 +1,9 @@
 package io.naulasis.utils;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-/**
- * ImVec3 is a part of Naulasis
- * Which was created / maintained by
- *
- * @author MTR
- */
 
 @AllArgsConstructor
-public class ImVec3 {
+public class ImVec3{
     public float x, y, z;
 
     public void add(ImVec3 vec) { this.x += vec.x; this.y += vec.y; this.z += vec.z; }

@@ -8,15 +8,22 @@ import io.naulasis.components.Component;
 import io.naulasis.utils.ColorConverter;
 import lombok.Getter;
 import lombok.Setter;
-
 import static io.naulasis.utils.ImGuiInternal.ImLerp;
 
-@Getter @Setter
 public class CheckBox extends Component {
 
+    private float miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1;
+
+    @Getter @Setter
     private boolean selected, destroyed, animated = true, hovered, clicked, pressed, released;
-    private float rounding = 6, miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1, animationSpeed = 10;
+
+    @Getter @Setter
+    private float rounding = 6, animationSpeed = 10;
+
+    @Getter @Setter
     private ImVec2 position = new ImVec2(0,0), size = new ImVec2(20, 20);
+
+    @Getter @Setter
     private ImVec4 color = new ImVec4(255, 0, 255, 255), outlineColor = new ImVec4(50, 50, 50, 150);
 
     @Override
@@ -73,6 +80,11 @@ public class CheckBox extends Component {
 
         int MiniRectColor = ColorConverter.colorToInt(color.x, color.y, color.z, miniRectOpacity);
         drawList.addRectFilled(miniRectMin, miniRectMax, MiniRectColor, miniRectRounding, 240);
+    }
+
+    @Override
+    public void build() {
+
     }
 
     @Override

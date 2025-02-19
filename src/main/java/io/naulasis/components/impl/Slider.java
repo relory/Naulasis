@@ -9,18 +9,16 @@ import io.naulasis.components.Component;
 import io.naulasis.utils.ColorConverter;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 import static io.naulasis.utils.ImGuiInternal.ImLerp;
 
 public class Slider extends Component {
     @Setter @Getter
-    private float rounding = 12, thumbRadius = 8, animationSpeed = 10, currentPosX, lastMousePosX, sliderPosX, minimumValue, maximumValue, ticks, value;
+    private float rounding = 12, thumbRadius = 8, animationSpeed = 10, destroyedValue = this.minimumValue, currentPosX, lastMousePosX, sliderPosX, minimumValue, maximumValue, ticks, value;
 
     @Setter @Getter
-    private boolean selected = false, hideThumb, animated = true, fadeInAnimation = true, fadeOutAnimation = true, startFromMinimum = true, hovered, clicked, pressed, released;
+    private boolean selected = false, hideThumb, animated = true, fadeInAnimation = true, fadeOutAnimation = true, hovered, clicked, pressed, released;
 
     @Setter @Getter
     private ImVec2 position = new ImVec2(0,0), size = new ImVec2(500, 7);
@@ -28,13 +26,8 @@ public class Slider extends Component {
     @Setter @Getter
     private ImVec4 progressColor = new ImVec4(255, 0, 100, 100), thumbColor = new ImVec4(255, 255, 255, 255), unprogressedColor = new ImVec4(45, 45, 45, 255);
 
-    @Getter @Setter
     private ImVec4 currentProgressColor = new ImVec4(0,0,0,0);
-
-    @Getter @Setter
     private ImVec4 currentThumbColor = new ImVec4(0,0,0,0);
-
-    @Getter @Setter
     private ImVec4 currentUnprogressedColor = new ImVec4(0,0,0,0);
 
     @Getter
@@ -57,14 +50,14 @@ public class Slider extends Component {
 
         if(destroyed){
             if(fadeOutAnimation) {
-                currentPosX = ImLerp(currentPosX, CalculateLocation(minimumValue), deltaTime * animationSpeed);
+                currentPosX = ImLerp(currentPosX, CalculateLocation(destroyedValue), deltaTime * animationSpeed);
             }
             else{
-                currentPosX = CalculateLocation(minimumValue);
+                currentPosX = CalculateLocation(destroyedValue);
             }
         }
 
-        if(!startFromMinimum){
+        if(currentPosX == CalculateLocation(destroyedValue)){
             currentPosX = CalculateLocation(this.value);
         }
 
@@ -74,7 +67,7 @@ public class Slider extends Component {
             currentUnprogressedColor = new ImVec4(0, 0, 0, 0);
         }
 
-        if(!destroyed && !fadeInAnimation){
+        if(!destroyed && !fadeInAnimation && currentProgressColor.w == 0){
             currentProgressColor = progressColor;
             currentThumbColor = thumbColor;
             currentUnprogressedColor = unprogressedColor;
@@ -98,8 +91,6 @@ public class Slider extends Component {
         if(!hideThumb) windowDrawList.addCircleFilled(currentPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w));
 
         if(destroyed) return;
-
-
 
         if(animated) {
             currentPosX = ImLerp(currentPosX, this.CalculateLocation(value), deltaTime * animationSpeed);

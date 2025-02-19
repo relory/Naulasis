@@ -25,6 +25,8 @@ public class Child extends Component {
         ImGui.setCursorPos(position);
 
         ImGui.pushStyleColor(ImGuiCol.ChildBg, ColorConverter.colorToInt(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w));
+        ImGui.pushStyleColor(ImGuiCol.Border, ColorConverter.colorToInt(borderColor.x, borderColor.y, borderColor.z, borderColor.w));
+
         ImGui.beginChild("##" + ID, size.x, size.y, border, ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar);
         ImGui.setCursorPos(lastCursorPosition);
 
@@ -48,6 +50,21 @@ public class Child extends Component {
 
     public void end(){
         ImGui.endChild();
-        ImGui.popStyleColor();
+        ImGui.popStyleColor(2);
+    }
+
+    @Override
+    public void draw() {
+
+    }
+
+    @Override
+    public void build() {
+
+    }
+
+    @Override
+    public void destroy() {
+
     }
 }

@@ -5,6 +5,7 @@ import imgui.flag.ImDrawFlags;
 import imgui.flag.ImGuiWindowFlags;
 import io.naulasis.utils.ColorConverter;
 import lombok.Getter;
+import org.lwjgl.glfw.GLFW;
 
 @Getter
 public class Naulasis {
@@ -34,8 +35,8 @@ public class Naulasis {
     //, boolean resizable, boolean moveable, boolean closeable, boolean hideable
     public static void begin(String title) {
         ImGui.begin(title, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove);
+        ImGui.setWindowFocus(title);
         ImGui.getStyle().setWindowRounding(10);
-
         ImDrawList drawList = ImGui.getForegroundDrawList();
         drawList.addRectFilled(new ImVec2(ImGui.getWindowPosX(), ImGui.getWindowPosY()), new ImVec2(ImGui.getWindowPosX() + ImGui.getWindowSizeX(), ImGui.getWindowPosY() + 30), ColorConverter.colorToInt(30, 30, 30, 255), 10, ImDrawFlags.RoundCornersAll);
     }

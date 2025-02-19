@@ -4,6 +4,7 @@ import imgui.ImVec2;
 import imgui.ImVec4;
 
 import static java.lang.Math.*;
+
 /// ported from the original ImGui github repository (https://github.com/ocornut/imgui/blob/master/imgui_internal.h). I do not take any credit on this class
 public class ImGuiInternal {
     public static ImVec2 ImClamp(ImVec2 v, ImVec2 mn, ImVec2 mx) {
@@ -11,6 +12,12 @@ public class ImGuiInternal {
                 Math.max(mn.x, Math.min(mx.x, v.x)),
                 Math.max(mn.y, Math.min(mx.y, v.y))
         );
+    }
+
+    public static ImVec2 ImRotate(ImVec2 v, float cos_a, float sin_a) {
+        float x = v.x * cos_a - v.y * sin_a;
+        float y = v.x * sin_a + v.y * cos_a;
+        return new ImVec2(x, y);
     }
 
     public static ImVec2 ImLerp(ImVec2 a, ImVec2 b, float t) {
