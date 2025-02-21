@@ -55,7 +55,6 @@ public class KeyInput extends Component {
     public void onKeyboardChar(char key) {
         if(!selected || destroyed) return;
         keyChar = key;
-
     }
 
 

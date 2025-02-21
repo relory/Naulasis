@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import static io.naulasis.utils.ImGuiInternal.ImLerp;
 
-public class CheckBox extends Component {
+public class Checkbox extends Component {
 
     private float miniRectRounding = 12, miniRectSize = 5, miniRectOpacity = 1;
 

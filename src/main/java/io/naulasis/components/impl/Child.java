@@ -54,11 +54,6 @@ public class Child extends Component {
     }
 
     @Override
-    public void draw() {
-
-    }
-
-    @Override
     public void build() {
 
     }

@@ -42,25 +42,51 @@ public class Slider extends Component {
 
     @Override
     public void draw() {
-        ImDrawList windowDrawList = ImGui.getWindowDrawList();
+        ImDrawList drawList = ImGui.getWindowDrawList();
+
         float deltaTime = ImGui.getIO().getDeltaTime();
         float windowX = ImGui.getWindowPosX();
         float windowY = ImGui.getWindowPosY() - ImGui.getScrollY();
         sliderPosX = windowX + position.x;
 
         if(destroyed){
-            if(fadeOutAnimation) {
-                currentPosX = ImLerp(currentPosX, CalculateLocation(destroyedValue), deltaTime * animationSpeed);
-            }
-            else{
-                currentPosX = CalculateLocation(destroyedValue);
-            }
+            onDestroyed(deltaTime);
         }
 
+        updateColors(deltaTime);
+        accuratePositions();
+        render(drawList, windowX, windowY);
+
+        if(!destroyed) {
+            updatePositions(deltaTime);
+            handleInput(windowX, windowY);
+            if (selected) {
+                handleLogic(windowX);
+            }
+        }
+    }
+
+    private void accuratePositions(){
         if(currentPosX == CalculateLocation(destroyedValue)){
             currentPosX = CalculateLocation(this.value);
         }
 
+        if (currentPosX == 0 && lastMousePosX == 0) {
+            lastMousePosX = this.CalculateLocation(value);
+            currentPosX = this.CalculateLocation(0);
+        }
+    }
+
+    private void onDestroyed(float deltaTime){
+        if(fadeOutAnimation) {
+            currentPosX = ImLerp(currentPosX, CalculateLocation(destroyedValue), deltaTime * animationSpeed);
+        }
+        else{
+            currentPosX = CalculateLocation(destroyedValue);
+        }
+    }
+    
+    private void updateColors(float deltaTime){
         if(destroyed && !fadeOutAnimation){
             currentProgressColor = new ImVec4(0, 0, 0, 0);
             currentThumbColor = new ImVec4(0, 0, 0, 0);
@@ -76,28 +102,41 @@ public class Slider extends Component {
         currentProgressColor = ImLerp(currentProgressColor, destroyed ? new ImVec4(0, 0, 0, 0) : progressColor, deltaTime * animationSpeed);
         currentThumbColor = ImLerp(currentThumbColor, destroyed ? new ImVec4(0, 0, 0, 0) : thumbColor, deltaTime * animationSpeed);
         currentUnprogressedColor = ImLerp(currentUnprogressedColor, destroyed ? new ImVec4(0, 0, 0, 0) : unprogressedColor, deltaTime * animationSpeed);
-
-        if (currentPosX == 0 && lastMousePosX == 0) {
-            lastMousePosX = this.CalculateLocation(value);
-            currentPosX = this.CalculateLocation(0);
+    }
+    
+    private void handleLogic(float windowX){
+        float mouseX = ImGui.getMousePos().x;
+        if (mouseX > windowX + position.x && mouseX < windowX + position.x + size.x) {
+            lastMousePosX = mouseX;
         }
 
-        windowDrawList.addRectFilled(currentPosX, windowY + position.y, windowX + position.x + size.x, windowY + position.y + size.y,
+        if (mouseX >= windowX + position.x + size.x) {
+            lastMousePosX = windowX + position.x + size.x;
+        } else if (mouseX <= windowX + position.x) {
+            lastMousePosX = windowX + position.x;
+        }
+
+        double d = Math.min(size.x, Math.max(0, lastMousePosX - (windowX + position.x)));
+        double newValue = (d / size.x) * (this.maximumValue - this.minimumValue) + this.minimumValue;
+        this.updateValue(newValue);
+    }
+
+    private void render(ImDrawList drawList, float windowX, float windowY) {
+        drawList.addRectFilled(currentPosX, windowY + position.y, windowX + position.x + size.x, windowY + position.y + size.y,
                 ColorConverter.colorToInt(currentUnprogressedColor.x, currentUnprogressedColor.y, currentUnprogressedColor.z, currentUnprogressedColor.w), rounding, ImDrawFlags.RoundCornersRight);
 
-        windowDrawList.addRectFilled(windowX + position.x, windowY + position.y, currentPosX, windowY + position.y + size.y,
+        drawList.addRectFilled(windowX + position.x, windowY + position.y, currentPosX, windowY + position.y + size.y,
                 ColorConverter.colorToInt(currentProgressColor.x, currentProgressColor.y, currentProgressColor.z, currentProgressColor.w), rounding, ImDrawFlags.RoundCornersLeft);
 
-        if(!hideThumb) windowDrawList.addCircleFilled(currentPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w));
+        if (!hideThumb)
+            drawList.addCircleFilled(currentPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w));
+    }
 
-        if(destroyed) return;
-
-        if(animated) {
-            currentPosX = ImLerp(currentPosX, this.CalculateLocation(value), deltaTime * animationSpeed);
-        }
-        else {
-            currentPosX = this.CalculateLocation(value);
-        }
+    private void handleInput(float windowX, float windowY){
+        hovered = ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
+        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
+        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
+        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
 
         if (ImGui.isMouseReleased(0)) {
             selected = false;
@@ -106,41 +145,18 @@ public class Slider extends Component {
         if (ImGui.isWindowFocused() && ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15)) {
             selected = true;
         }
-
-        if (selected) {
-            float mouseX = ImGui.getMousePos().x;
-            if (mouseX > windowX + position.x && mouseX < windowX + position.x + size.x) {
-                lastMousePosX = mouseX;
-            }
-
-            if (mouseX >= windowX + position.x + size.x) {
-                lastMousePosX = windowX + position.x + size.x;
-            } else if (mouseX <= windowX + position.x) {
-                lastMousePosX = windowX + position.x;
-            }
-
-            double d = Math.min(size.x, Math.max(0, lastMousePosX - (windowX + position.x)));
-            double newValue = (d / size.x) * (this.maximumValue - this.minimumValue) + this.minimumValue;
-            this.updateValue(newValue);
+    }
+    
+    private void updatePositions(float deltaTime){
+        if(animated) {
+            currentPosX = ImLerp(currentPosX, this.CalculateLocation(value), deltaTime * animationSpeed);
         }
-
-        hovered = ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
-        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
-        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
-        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
-
+        else {
+            currentPosX = this.CalculateLocation(value);
+        }
     }
 
-    @Override
-    public void destroy() {
-        destroyed = true;
-    }
-
-    public void build(){
-        destroyed = false;
-    }
-
-    public float CalculateLocation(float value) {
+    private float CalculateLocation(float value) {
         return sliderPosX + ((Math.max(this.minimumValue, Math.min(this.maximumValue, value)) - this.minimumValue) / (this.maximumValue - minimumValue)) * size.x;
     }
 
@@ -154,7 +170,7 @@ public class Slider extends Component {
         }
     }
 
-    public static double check(double v, double i, double a) {
+    private double check(double v, double i, double a) {
         v = Math.max(i, v);
         v = Math.min(a, v);
 
@@ -168,7 +184,12 @@ public class Slider extends Component {
         this.value = (float) n;
     }
 
-    public float getValue() {
-        return Round(value, 2);
+    @Override
+    public void destroy() {
+        destroyed = true;
+    }
+
+    public void build(){
+        destroyed = false;
     }
 }

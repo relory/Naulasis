@@ -49,61 +49,56 @@ public class RangeSlider extends Component {
 
     @Override
     public void draw() {
-        ImDrawList windowDrawList = ImGui.getWindowDrawList();
+        ImDrawList drawList = ImGui.getWindowDrawList();
+
         float deltaTime = ImGui.getIO().getDeltaTime();
         float windowX = ImGui.getWindowPosX();
         float windowY = ImGui.getWindowPosY() - ImGui.getScrollY();
         sliderPosX = windowX + position.x;
 
         if(destroyed){
-            if(fadeOutAnimation) {
-                currentMinPosX = ImLerp(currentMinPosX, CalculateLocation(destroyedLowValue), deltaTime * animationSpeed);
-                currentMaxPosX = ImLerp(currentMaxPosX, CalculateLocation(destroyedHighValue), deltaTime * animationSpeed);
-
-            }
-            else{
-                currentMinPosX = CalculateLocation(destroyedLowValue);
-                currentMaxPosX = CalculateLocation(destroyedHighValue);
-            }
+            onDestroyed(deltaTime);
         }
 
+        updateColors(deltaTime);
+        render(drawList, windowX, windowY);
+
+        if(!destroyed) {
+            updatePositions(deltaTime);
+            handleInput(windowX, windowY);
+            handleLogic(windowX);
+        }
+    }
+
+    private void onDestroyed(float deltaTime){
+        if(fadeOutAnimation) {
+            currentMinPosX = ImLerp(currentMinPosX, CalculateLocation(destroyedLowValue), deltaTime * animationSpeed);
+            currentMaxPosX = ImLerp(currentMaxPosX, CalculateLocation(destroyedHighValue), deltaTime * animationSpeed);
+
+        }
+        else{
+            currentMinPosX = CalculateLocation(destroyedLowValue);
+            currentMaxPosX = CalculateLocation(destroyedHighValue);
+        }
+
+        hovered = false;
+        clicked = false;
+        pressed = false;
+        released = false;
+    }
+
+    private void updatePositions(float deltaTime){
+        currentMinPosX = animated ? ImLerp(currentMinPosX, this.CalculateLocation(lowValue), deltaTime * animationSpeed) : this.CalculateLocation(lowValue);
+        currentMaxPosX = animated ? ImLerp(currentMaxPosX, this.CalculateLocation(highValue), deltaTime * animationSpeed) : this.CalculateLocation(highValue);
+    }
+
+    private void updateColors(float deltaTime){
         currentProgressColor = ImLerp(currentProgressColor, destroyed ? new ImVec4(0, 0, 0, 0) : progressColor, deltaTime * animationSpeed);
         currentThumbColor = ImLerp(currentThumbColor, destroyed ? new ImVec4(0, 0, 0, 0) : thumbColor, deltaTime * animationSpeed);
         currentUnprogressedColor = ImLerp(currentUnprogressedColor, destroyed ? new ImVec4(0, 0, 0, 0) : unprogressedColor, deltaTime * animationSpeed);
+    }
 
-        windowDrawList.addRectFilled(sliderPosX, windowY + position.y, windowX + position.x + size.x, windowY + position.y + size.y,
-                ColorConverter.colorToInt(currentUnprogressedColor.x, currentUnprogressedColor.y, currentUnprogressedColor.z, currentUnprogressedColor.w), rounding, ImDrawFlags.RoundCornersAll);
-
-        windowDrawList.addRectFilled(currentMinPosX, windowY + position.y, currentMaxPosX, windowY + position.y + size.y,
-                ColorConverter.colorToInt(currentProgressColor.x, currentProgressColor.y, currentProgressColor.z, currentProgressColor.w), rounding, ImDrawFlags.RoundCornersAll);
-
-        if(!hideThumb) windowDrawList.addCircleFilled(currentMinPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w));
-        if(!hideThumb) windowDrawList.addCircleFilled(currentMaxPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w));
-
-        if(destroyed) return;
-
-        currentMinPosX = animated ? ImLerp(currentMinPosX, this.CalculateLocation(lowValue), deltaTime * animationSpeed) : this.CalculateLocation(lowValue);
-        currentMaxPosX = animated ? ImLerp(currentMaxPosX, this.CalculateLocation(highValue), deltaTime * animationSpeed) : this.CalculateLocation(highValue);
-
-        if (ImGui.isMouseReleased(0)) {
-            MinSelected = false;
-            MaxSelected = false;
-        }
-
-        if (ImGui.isWindowFocused() && ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15)) {
-            float mouseX = ImGui.getMousePos().x;
-            float minPosX = CalculateLocation(lowValue);
-            float maxPosX = CalculateLocation(highValue);
-
-            if (Math.abs(mouseX - minPosX) < Math.abs(mouseX - maxPosX)) {
-                MinSelected = true;
-                MaxSelected = false;
-            } else {
-                MaxSelected = true;
-                MinSelected = false;
-            }
-        }
-
+    private void handleLogic(float windowX){
         if (MinSelected) {
             float mouseX = ImGui.getMousePos().x;
             if (mouseX > windowX + position.x && mouseX < windowX + position.x + size.x) {
@@ -137,12 +132,45 @@ public class RangeSlider extends Component {
             double newValue = (d / size.x) * (this.maximumValue - this.minimumValue) + this.minimumValue;
             this.updateMaxValue(newValue);
         }
+    }
 
+    private void handleInput(float windowX, float windowY){
         hovered = ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
         clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
         pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
         released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15);
 
+        if (ImGui.isMouseReleased(0)) {
+            MinSelected = false;
+            MaxSelected = false;
+        }
+
+        if (ImGui.isWindowFocused() && ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(windowX + position.x - 15, windowY + position.y - 15, windowX + position.x + size.x + 15, windowY + position.y + size.y + 15)) {
+            float mouseX = ImGui.getMousePos().x;
+            float minPosX = CalculateLocation(lowValue);
+            float maxPosX = CalculateLocation(highValue);
+
+            if (Math.abs(mouseX - minPosX) < Math.abs(mouseX - maxPosX)) {
+                MinSelected = true;
+                MaxSelected = false;
+            } else {
+                MaxSelected = true;
+                MinSelected = false;
+            }
+        }
+    }
+
+    private void render(ImDrawList drawList, float windowX, float windowY) {
+        drawList.addRectFilled(sliderPosX, windowY + position.y, windowX + position.x + size.x, windowY + position.y + size.y,
+                ColorConverter.colorToInt(currentUnprogressedColor.x, currentUnprogressedColor.y, currentUnprogressedColor.z, currentUnprogressedColor.w), rounding, ImDrawFlags.RoundCornersAll);
+
+        drawList.addRectFilled(currentMinPosX, windowY + position.y, currentMaxPosX, windowY + position.y + size.y,
+                ColorConverter.colorToInt(currentProgressColor.x, currentProgressColor.y, currentProgressColor.z, currentProgressColor.w), rounding, ImDrawFlags.RoundCornersAll);
+
+        if (!hideThumb)
+            drawList.addCircleFilled(currentMinPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w));
+        if (!hideThumb)
+            drawList.addCircleFilled(currentMaxPosX, windowY + position.y + size.y / 2, thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package io.naulasis.components;
 
-import io.naulasis.components.impl.CheckBox;
+import io.naulasis.components.impl.Checkbox;
 import io.naulasis.components.impl.TextInput;
 import lombok.Getter;
 
@@ -17,7 +17,7 @@ public class ComponentManager {
     private ComponentManager() {
         components.addAll(Arrays.asList(
                 new TextInput(),
-                new CheckBox()
+                new Checkbox()
         ));
     }
 

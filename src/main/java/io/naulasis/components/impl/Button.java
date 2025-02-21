@@ -13,7 +13,6 @@ import lombok.Setter;
 
 
 public class Button extends Component {
-
     @Getter
     private long lastClickedTime = 0L;
 
@@ -21,6 +20,9 @@ public class Button extends Component {
 
     @Getter @Setter
     private boolean clicked, hovered, pressed, released;
+
+    @Getter
+    private boolean destroyed;
 
     @Getter @Setter
     private ImVec2 position = new ImVec2(0,0), size = new ImVec2(75, 25);
@@ -48,36 +50,38 @@ public class Button extends Component {
 
     @Override
     public void draw() {
-        if(position == null) position = ImGui.getCursorPos();
+        ImDrawList drawList = ImGui.getWindowDrawList();
+
         ImVec2 minPos = new ImVec2(ImGui.getWindowPosX() + position.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y);
         ImVec2 maxPos = new ImVec2(ImGui.getWindowPosX() + position.x + size.x, ImGui.getWindowPosY() - ImGui.getScrollY() + position.y + size.y);
 
-        ImDrawList drawList = ImGui.getWindowDrawList();
+        render(drawList, minPos, maxPos);
+        if(!destroyed) {
+            handleInput(minPos, maxPos);
+        }
+        handleHoldTime();
+    }
+
+    private void render(ImDrawList drawList, ImVec2 minPos, ImVec2 maxPos){
         ImVec2 textSize = ImGui.getFont().calcTextSizeA(fontSize, Float.MAX_VALUE, 0,text);
         ImVec2 textPos = new ImVec2(minPos.x + (size.x - textSize.x) / 2, minPos.y + (size.y - textSize.y) / 2);
 
         drawList.addRectFilled(minPos, maxPos, ColorConverter.colorToInt(currentBackgroundColor.x, currentBackgroundColor.y, currentBackgroundColor.z, currentBackgroundColor.w), rounding, ImDrawFlags.RoundCornersAll);
         drawList.addText(ImGui.getFont(), fontSize, new ImVec2(textPos), ColorConverter.colorToInt(textColor.x, textColor.y, textColor.z, textColor.w), text);
         drawList.addRect(minPos, maxPos, ColorConverter.colorToInt(outlineColor.x, outlineColor.y, outlineColor.z, outlineColor.w), rounding, ImDrawFlags.RoundCornersAll, outlineThickness);
+    }
 
-        hovered = ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-
+    private void handleHoldTime(){
         lastClickedTime = clicked ? System.currentTimeMillis() : lastClickedTime;
 
-        if (clicked && onClick != null) {
-            onClick.run();
-        }
-
-        ImVec4 targetbackgroundColor;
         if(System.currentTimeMillis() - lastClickedTime > holdTime) {
-            targetbackgroundColor = backgroundColor;
+            updateColors(backgroundColor);
         } else {
-            targetbackgroundColor = clickedColor;
+            updateColors(clickedColor);
         }
+    }
 
+    private void updateColors(ImVec4 targetbackgroundColor){
         if(animated) {
             currentBackgroundColor = ImGuiInternal.ImLerp(currentBackgroundColor, targetbackgroundColor, ImGui.getIO().getDeltaTime() * animationSpeed);
         } else {
@@ -85,13 +89,25 @@ public class Button extends Component {
         }
     }
 
+    private void handleInput(ImVec2 minPos, ImVec2 maxPos){
+        hovered = ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+
+        if (clicked && onClick != null) {
+            onClick.run();
+        }
+    }
+
+
     @Override
     public void build() {
-
+        destroyed = false;
     }
 
     @Override
     public void destroy() {
-
+        destroyed = true;
     }
 }

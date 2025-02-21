@@ -52,7 +52,7 @@ public class Entrypoint {
         Slider slider = new Slider( 1, 100, 50, 1);
         Button button = new Button();
         TextInput textInput = new TextInput();
-        CheckBox checkbox = new CheckBox();
+        Checkbox checkbox = new Checkbox();
         Switch switcher = new Switch(false);
         Child child = new Child();
         child.setPosition(new ImVec2(50, 50));
@@ -64,7 +64,7 @@ public class Entrypoint {
 
         KeyInput keyInput = new KeyInput();
 
-        RangeSlider rangeSlider = new RangeSlider(1,100,25,75,1);
+        RangeSlider rangeSlider = new RangeSlider(1,100,25,75,10);
         Set<String> fruits = new HashSet<>();
 
         // Add elements to the Set
@@ -82,8 +82,8 @@ public class Entrypoint {
             ImGui.newFrame();
             Naulasis.begin("hello world");
             rangeSlider.setPosition(new ImVec2(50, 50));
-            rangeSlider.setDestroyedHighValue(rangeSlider.getMaximumValue());
-            rangeSlider.setDestroyedLowValue(rangeSlider.getMinimumValue());
+            rangeSlider.setDestroyedLowValue(slider.getMinimumValue());
+            rangeSlider.setDestroyedHighValue(slider.getMaximumValue());
             rangeSlider.draw();
 
             combobox.draw();

@@ -33,7 +33,7 @@ public class Switch extends Component {
 
     @Setter
     private Runnable onClick;
-    // Track the last window position;
+
     private float prevWindowX = -1, prevWindowY = -1;
 
     public Switch(boolean enabled) {
@@ -42,27 +42,21 @@ public class Switch extends Component {
 
     @Override
     public void draw() {
-        if (currentColor == null) currentColor = disabledColor;
-        ImDrawList windowDrawList = ImGui.getWindowDrawList();
+        if (currentColor == null)
+            currentColor = disabledColor;
+
+        ImDrawList drawList = ImGui.getWindowDrawList();
+
         float windowX = ImGui.getWindowPosX();
         float windowY = ImGui.getWindowPosY() - ImGui.getScrollY();
         float deltaTime = ImGui.getIO().getDeltaTime();
+
         ImVec2 minPos = new ImVec2(windowX + position.x, windowY + position.y);
         ImVec2 maxPos = new ImVec2(windowX + position.x + size.x, windowY + position.y + size.y);
 
         targetPos = this.isToggled() ? maxPos.x - size.y / 2 : minPos.x + size.y / 2;
-        if(destroyed){
-            if(fadeOutAnimation) {
-                currentPos = ImLerp(currentPos, this.destroyedValue ? maxPos.x - size.y / 2 : minPos.x + size.y / 2, deltaTime * animationSpeed);
-                currentColor = ImLerp(currentColor, this.destroyedValue ? new ImVec4(enabledColor.x, enabledColor.y, enabledColor.z, 0) : new ImVec4(disabledColor.x, disabledColor.y, disabledColor.z, 0), deltaTime * animationSpeed);
-                currentThumbColor = ImLerp(currentThumbColor, new ImVec4(0, 0, 0, 0), deltaTime * animationSpeed);
-            }
-            else{
-                currentPos = this.destroyedValue ? maxPos.x - size.y / 2 : minPos.x + size.y / 2;
-                currentColor = this.destroyedValue ? new ImVec4(enabledColor.x, enabledColor.y, enabledColor.z, 0) : new ImVec4(disabledColor.x, disabledColor.y, disabledColor.z, 0);
-                currentThumbColor = new ImVec4(0, 0, 0, 0);
-            }
-        }
+        if(destroyed)
+            onDestroyed(minPos, maxPos, deltaTime);
 
         if(destroyed != lastDestroyedState){
             if(!fadeInAnimation) {
@@ -72,51 +66,84 @@ public class Switch extends Component {
             }
         }
 
-        // Check if the current window is moving
+        accuratePositions(windowX);
+        render(drawList, minPos, maxPos, windowY);
+
+        lastDestroyedState = destroyed;
+        if(!destroyed) {
+            if (ImGui.isWindowFocused()) {
+                updateColors(deltaTime);
+                updatePosition(deltaTime);
+            }
+
+            handleLogic();
+            handleInput(minPos, maxPos);
+        }
+    }
+
+    private void accuratePositions(float windowX){
         if (prevWindowX != windowX) {
             currentPos = targetPos;
             prevWindowX = windowX;
         }
+    }
 
+    private void onDestroyed(ImVec2 minPos, ImVec2 maxPos, float deltaTime){
+        if(fadeOutAnimation) {
+            currentPos = ImLerp(currentPos, this.destroyedValue ? maxPos.x - size.y / 2 : minPos.x + size.y / 2, deltaTime * animationSpeed);
+            currentColor = ImLerp(currentColor, this.destroyedValue ? new ImVec4(enabledColor.x, enabledColor.y, enabledColor.z, 0) : new ImVec4(disabledColor.x, disabledColor.y, disabledColor.z, 0), deltaTime * animationSpeed);
+            currentThumbColor = ImLerp(currentThumbColor, new ImVec4(0, 0, 0, 0), deltaTime * animationSpeed);
+        }
+        else{
+            currentPos = this.destroyedValue ? maxPos.x - size.y / 2 : minPos.x + size.y / 2;
+            currentColor = this.destroyedValue ? new ImVec4(enabledColor.x, enabledColor.y, enabledColor.z, 0) : new ImVec4(disabledColor.x, disabledColor.y, disabledColor.z, 0);
+            currentThumbColor = new ImVec4(0, 0, 0, 0);
+        }
+    }
 
-        windowDrawList.addRectFilled(
+    private void updatePosition(float deltaTime){
+        if (animated)
+            currentPos = ImLerp(currentPos, targetPos, deltaTime * animationSpeed);
+        else
+            currentPos = targetPos;
+    }
+
+    private void handleLogic(){
+        if (clicked)
+            this.toggled = !this.toggled;
+
+        if (clicked && onClick != null)
+            onClick.run();
+    }
+
+    private void handleInput(ImVec2 minPos, ImVec2 maxPos){
+        hovered = ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
+    }
+
+    private void updateColors(float deltaTime){
+        if (animated) {
+            currentThumbColor = ImLerp(currentThumbColor, thumbColor, deltaTime * (animationSpeed / 2));
+            currentColor = ImLerp(currentColor, this.toggled ? new ImVec4(enabledColor.x, enabledColor.y, enabledColor.z, enabledColor.w) : new ImVec4(disabledColor.x, disabledColor.y, disabledColor.z, disabledColor.w), deltaTime * (animationSpeed / 2));
+        } else {
+            currentColor = this.toggled ? enabledColor : disabledColor;
+            currentThumbColor = thumbColor;
+        }
+    }
+
+    private void render(ImDrawList drawList, ImVec2 minPos, ImVec2 maxPos, float windowY){
+        drawList.addRectFilled(
                 minPos, maxPos,
                 ColorConverter.colorToInt(currentColor.x, currentColor.y, currentColor.z, currentColor.w),
                 rounding, ImDrawFlags.RoundCornersAll
         );
 
-        windowDrawList.addCircleFilled(
+        drawList.addCircleFilled(
                 currentPos, windowY + position.y + size.y / 2,
                 thumbRadius, ColorConverter.colorToInt(currentThumbColor.x, currentThumbColor.y, currentThumbColor.z, currentThumbColor.w)
         );
-
-        lastDestroyedState = destroyed;
-
-        if(destroyed) return;
-
-        if (animated && ImGui.isWindowFocused()) {
-            currentPos = ImLerp(currentPos, targetPos, deltaTime * animationSpeed);
-            currentThumbColor = ImLerp(currentThumbColor, thumbColor, deltaTime * animationSpeed);
-            currentColor = ImLerp(currentColor, this.toggled ? new ImVec4(enabledColor.x, enabledColor.y, enabledColor.z, enabledColor.w) : new ImVec4(disabledColor.x, disabledColor.y, disabledColor.z, disabledColor.w), deltaTime * animationSpeed);
-        } else {
-            currentPos = targetPos;
-            currentColor = this.toggled ? enabledColor : disabledColor;
-            currentThumbColor = thumbColor;
-        }
-
-        if (ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y)) {
-            this.toggled = !this.toggled;
-        }
-
-        if (clicked && onClick != null) {
-            onClick.run();
-        }
-
-        hovered = ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-        clicked = ImGui.isMouseClicked(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-        pressed = ImGui.isMouseDown(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-        released = ImGui.isMouseReleased(0) && ImGui.isMouseHoveringRect(minPos.x, minPos.y, maxPos.x, maxPos.y);
-
     }
 
     @Override
