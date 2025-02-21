@@ -82,6 +82,7 @@ public class Checkbox extends Component {
         drawList.addRectFilled(miniRectMin, miniRectMax, MiniRectColor, miniRectRounding, 240);
     }
 
+
     @Override
     public void build() {
 

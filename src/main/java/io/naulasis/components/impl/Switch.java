@@ -23,7 +23,10 @@ public class Switch extends Component {
     private ImVec2 position = new ImVec2(0,0), size = new ImVec2(55, 25);
 
     @Getter @Setter
-    private boolean toggled, animated = true, clicked, hovered, pressed, released, destroyed, destroyedValue, fadeInAnimation = true, fadeOutAnimation = true;
+    private boolean toggled, animated = true, clicked, hovered, pressed, released, destroyedValue, fadeInAnimation = true, fadeOutAnimation = true;
+
+    @Getter
+    private boolean destroyed;
 
     private boolean lastDestroyedState = false;
     private float targetPos;

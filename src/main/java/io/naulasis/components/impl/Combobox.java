@@ -26,6 +26,9 @@ public class Combobox extends Component {
     @Getter @Setter
     private String selectedItem;
 
+    @Getter
+    private boolean destroyed;
+
     @Getter @Setter
     private boolean open, border;
 
@@ -99,7 +102,7 @@ public class Combobox extends Component {
         }
     }
 
-    public static void drawArrow(ImVec2 position, float size, float rotation, int color, ImDrawList drawList) {
+    private void drawArrow(ImVec2 position, float size, float rotation, int color, ImDrawList drawList) {
         double radians = Math.toRadians(rotation);
         float cos_a = (float) Math.cos(radians);
         float sin_a = (float) Math.sin(radians);
@@ -127,11 +130,11 @@ public class Combobox extends Component {
 
     @Override
     public void destroy() {
-
+        destroyed = true;
     }
 
     @Override
     public void build() {
-
+        destroyed = false;
     }
 }

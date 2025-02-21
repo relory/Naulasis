@@ -30,6 +30,18 @@ public class Child extends Component {
         ImGui.beginChild("##" + ID, size.x, size.y, border, ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar);
         ImGui.setCursorPos(lastCursorPosition);
 
+        updatePositions();
+        handleInput();
+    }
+
+    private void handleInput() {
+        hovered = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x);
+        clicked = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x) && ImGui.isMouseClicked(0);
+        pressed = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x) && ImGui.isMouseDown(0);
+        released = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x) && ImGui.isMouseReleased(0);
+    }
+
+    private void updatePositions(){
         float currentScrollY = ImGui.getScrollY();
         float maxScrollY = ImGui.getScrollMaxY();
 
@@ -41,11 +53,6 @@ public class Child extends Component {
             currentScrollY = ImGuiInternal.ImLerp(currentScrollY, scrollY,  ImGui.getIO().getDeltaTime() * animationSpeed);
             ImGui.setScrollY(currentScrollY);
         }
-
-        hovered = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x);
-        clicked = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x) && ImGui.isMouseClicked(0);
-        pressed = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x) && ImGui.isMouseDown(0);
-        released = ImGui.isMouseHoveringRect(position.x, position.y, position.x + size.x, position.y + size.x) && ImGui.isMouseReleased(0);
     }
 
     public void end(){
