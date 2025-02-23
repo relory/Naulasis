@@ -18,7 +18,7 @@ public class Child extends Component {
     private ImVec4 backgroundColor = new ImVec4(30, 30, 30, 255), borderColor = new ImVec4(55, 55, 55, 255);
 
     private float rounding = 15f, scrollY, scrollX, animationSpeed = 10f, sensitivity = 1.0f, stopScrollValue = 0.1f;
-    private boolean border, hovered, pressed, clicked, released;
+    private boolean border, hovered, pressed, clicked, released, animated;
 
     public void begin(String ID){
         ImVec2 lastCursorPosition = ImGui.getCursorPos();
@@ -44,13 +44,17 @@ public class Child extends Component {
     private void updatePositions(){
         float currentScrollY = ImGui.getScrollY();
         float maxScrollY = ImGui.getScrollMaxY();
-
         if (ImGui.getIO().getMouseWheel() != 0 && hovered) {
             scrollY -= ImGui.getIO().getMouseWheel() * 100 * sensitivity;
             scrollY = Math.max(0, Math.min(maxScrollY, scrollY));
         }
         if (Math.abs(currentScrollY - scrollY) > stopScrollValue) {
-            currentScrollY = ImGuiInternal.ImLerp(currentScrollY, scrollY,  ImGui.getIO().getDeltaTime() * animationSpeed);
+            if(animated){
+                currentScrollY = ImGuiInternal.ImLerp(currentScrollY, scrollY,  ImGui.getIO().getDeltaTime() * animationSpeed);
+            }
+            else{
+                currentScrollY = scrollY;
+            }
             ImGui.setScrollY(currentScrollY);
         }
     }
