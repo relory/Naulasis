@@ -67,7 +67,7 @@ public class Entrypoint {
         RangeSlider rangeSlider = new RangeSlider(1,100,25,75,10);
         Set<String> fruits = new HashSet<>();
 
-        // Add elements to the Set
+
         fruits.add("Basic");
         fruits.add("Advanced");
         fruits.add("Silent");
@@ -75,41 +75,44 @@ public class Entrypoint {
         Combobox combobox = new Combobox(fruits, "Orange");
         combobox.setBackgroundColor(new ImVec4(30,30,30,255));
 
+
+        ColorPicker colorPicker = new ColorPicker();
+
+        colorPicker.setPosition(new ImVec2(300, 50));
+
         while(!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
             imGuiGlfw.newFrame();
             imGuiGl3.newFrame();
             ImGui.newFrame();
             Naulasis.begin("hello world");
+
             rangeSlider.setPosition(new ImVec2(50, 50));
             rangeSlider.setDestroyedLowValue(slider.getMinimumValue());
             rangeSlider.setDestroyedHighValue(slider.getMaximumValue());
             rangeSlider.draw();
 
+            combobox.setPosition(new ImVec2(100, 300));
             combobox.draw();
-            combobox.setPosition(new ImVec2(100, 100));
 
             System.out.println(ImGui.getIO().getFramerate());
             switcher.setPosition(new ImVec2(400, 200));
             switcher.setDestroyedValue(!switcher.isToggled());
             switcher.draw();
+
             keyInput.setSize(new ImVec2(50, 50));
             keyInput.setPosition(new ImVec2(50, 50));
-            /*
-            glfwSetMouseButtonCallback(Naulasis.getInstance().getWindow(), (windowHandle, codepoint)->{
-
-            });
-
-             */
 
             button.setPosition(new ImVec2(50, 200));
             button.setText("toggle Destroyed");
             button.setSize(new ImVec2(160, 50));
             button.setFontSize(20);
             button.draw();
+
+            textInput.setPosition(new ImVec2(100, 400));
             textInput.draw();
-            textInput.setPosition(new ImVec2(new ImVec2(100, 400)));
-            glfwSetCharCallback(Naulasis.getInstance().getWindow(), (windowHandle, codepoint) -> {
+
+            glfwSetCharCallback(Naulasis.getInstance().getWindow(), (windowHandle, codepoint)->{
                 textInput.onKeyboardChar((char) codepoint);
             });
             glfwSetKeyCallback(Naulasis.getInstance().getWindow(), (windowHandle, key, scancode, action, mods) -> {
@@ -132,7 +135,7 @@ public class Entrypoint {
                     switcher.destroy();
                 }
             }
-            if(combobox.getSelectedItem() == "Silent"){
+            if(combobox.getSelectedItem().equals("Silent")){
                 if(rangeSlider.isDestroyed()){
                     rangeSlider.build();
                 }
@@ -141,6 +144,8 @@ public class Entrypoint {
                 if(!rangeSlider.isDestroyed())
                     rangeSlider.destroy();
             }
+
+            colorPicker.draw();
 
             Naulasis.end();
             ImGui.render();
