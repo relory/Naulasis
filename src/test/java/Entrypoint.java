@@ -78,7 +78,7 @@ public class Entrypoint {
 
         ColorPicker colorPicker = new ColorPicker();
 
-        colorPicker.setPosition(new ImVec2(300, 50));
+        colorPicker.setPosition(new ImVec2(100, 50));
 
         while(!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
@@ -96,14 +96,14 @@ public class Entrypoint {
             combobox.draw();
 
             System.out.println(ImGui.getIO().getFramerate());
-            switcher.setPosition(new ImVec2(400, 200));
+            switcher.setPosition(new ImVec2(400, 280));
             switcher.setDestroyedValue(!switcher.isToggled());
             switcher.draw();
 
             keyInput.setSize(new ImVec2(50, 50));
             keyInput.setPosition(new ImVec2(50, 50));
 
-            button.setPosition(new ImVec2(50, 200));
+            button.setPosition(new ImVec2(50, 280));
             button.setText("toggle Destroyed");
             button.setSize(new ImVec2(160, 50));
             button.setFontSize(20);
